@@ -5,7 +5,7 @@ const upload=require('./../utils/multer');
 const validateSchema=require('./../utils/validateSchema');
 const validate=require('./../middleware/validationMiddleware');
 
-router.post('/signup' ,upload.fields([{ name: 'Image',maxCount:5}, { name: 'BannerImage',maxCount:1}])
+router.post('/signup' ,upload.single('BannerImage')
 , validate(validateSchema.registerSchema),userController.signup);
 router.post('/login',validate(validateSchema.loginSchema),userController.login);
 router.get('/singleUser',userController.singleUser);

@@ -1,63 +1,68 @@
-const {DataTypes}=require('sequelize');
-const sequelize= require('./../config/db')
+const { DataTypes } = require('sequelize');
+const sequelize = require('./../config/db')
 
-const userModel= sequelize.define('userModel',{
-    name:{
-     type:DataTypes.STRING
+const userModel = sequelize.define('userModel', {
+    name: {
+        type: DataTypes.STRING,
+        allowNull: true
     },
-    email:{
-        type:DataTypes.STRING
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true
     },
-    password:{
-       type:DataTypes.STRING 
+    password: {
+        type: DataTypes.STRING,
+        allowNull: true
     },
-    birthDate:{
-        type:DataTypes.DATEONLY
+    birthDate: {
+        type: DataTypes.DATEONLY
     },
-    mobilenum:{
-        type:DataTypes.INTEGER
+    Address: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {
+            address: null,
+            city: null,
+            state: null,
+            country: null,
+            pincode: null,
+            landmark: null,
+        }
     },
-    Address:{
-      type:DataTypes.JSON,
-      allowNull:true,
-      defaultValue:{
-        address:null,
-        city:null,
-        state:null,
-        country:null,
-        pincode:null,
-        landmark:null,
-      }
+    roles: {
+        type: DataTypes.ENUM,
+        allowNull: false,
+        values: ['admin', 'librarian', 'user']
     },
-    roles:{
-           type:DataTypes.ENUM,
-           allowNull:false,
-           values:['admin','librarian','user']
-        },
-       Image:{
-        type:DataTypes.BLOB,
-        allowNull:false, 
-         },
-       BannerImage:{
-        type:DataTypes.BLOB,
-        allowNull:true
-        },
-       isLogin: {
+    Image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    BannerImage: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    isLogin: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0
-      },
-     isdeleted:{
-        type:DataTypes.INTEGER,
-        allowNull:false,
-        defaultValue:0
-    }
-},{
-    timestamps:true
+    },
+    isdeleted: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    // isApproved:{
+    //     type:DataTypes.INTEGER,
+    //     allowNull:false,
+    //     defaultValue:0
+    // }
+}, {
+    timestamps: true
 })
 
-module.exports=userModel;
+module.exports = userModel;
 
-sequelize.sync().then(()=>{
+sequelize.sync().then(() => {
     console.log(`user table is created `)
-}).catch((err)=>console.log('unable to create table'+err))
+}).catch((err) => console.log('unable to create table' + err))

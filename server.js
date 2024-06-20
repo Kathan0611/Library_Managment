@@ -13,9 +13,8 @@ app.use('/userRouter',userRouter);
 // app.use('/boo')
 // app.use('/bookRouter',bookRouter);////
 // app.use('/transactionRouter',transactionRouter);
+const PORT=process.env.PORT
 
-
-
-app.listen('3000',()=>{
+app.listen(PORT,()=>{
     console.log(`server running on port 3000`)
 })

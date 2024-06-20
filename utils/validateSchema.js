@@ -7,13 +7,12 @@ const registerSchema= Joi.object({
     password:Joi.string().trim().required(),
     roles:Joi.number().required(),
     birthDate:Joi.date(),
-    mobilenum:Joi.number().required(),
-    Address:Joi.string().required()
+    Address:Joi.string().allow("").required()
      
 });
 
 const loginSchema= Joi.object({
-    username: Joi.alternatives().try(
+    email: Joi.alternatives().try(
         Joi.string().email().trim().required(),
         Joi.string().trim().required()
       ),
