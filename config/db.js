@@ -7,7 +7,8 @@ const sequelize= new Sequelize({
     username:'root',
     password:'',
     host:'localhost',
-    dialect:'mysql'
+    dialect:'mysql',
+    port:2811
 })
 
 sequelize.authenticate().then(()=>{
