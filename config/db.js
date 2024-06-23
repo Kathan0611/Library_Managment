@@ -3,7 +3,7 @@ const {Sequelize}= require('sequelize');
 
 
 const sequelize= new Sequelize({
-    database:'society',
+    database:'library',
     username:'root',
     password:'',
     host:'localhost',
