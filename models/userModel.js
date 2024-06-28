@@ -1,4 +1,6 @@
 const { DataTypes } = require('sequelize');
+const moment = require('moment-timezone');
+
 const sequelize = require('./../config/db')
 
 const userModel = sequelize.define('userModel', {
@@ -12,33 +14,21 @@ const userModel = sequelize.define('userModel', {
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
-    birthDate: {
-        type: DataTypes.DATEONLY
-    },
-    Address: {
-        type: DataTypes.JSON,
-        allowNull: true,
-        defaultValue: {
-            address: null,
-            city: null,
-            state: null,
-            country: null,
-            pincode: null,
-            landmark: null,
-        }
+    mobilenum: {
+        type: DataTypes.INTEGER
     },
     roles: {
-        type: DataTypes.ENUM,
+        type: DataTypes.STRING,
         allowNull: false,
-        values: ['admin', 'librarian', 'user']
+        defaultValue:'user'
     },
     Image: {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    BannerImage: {
+    BannerImage: { 
         type: DataTypes.STRING,
         allowNull: true
     },
@@ -52,17 +42,23 @@ const userModel = sequelize.define('userModel', {
         allowNull: false,
         defaultValue: 0
     },
-    // isApproved:{
-    //     type:DataTypes.INTEGER,
-    //     allowNull:false,
-    //     defaultValue:0
-    // }
+    otp: {
+        type:DataTypes.STRING,
+        allowNull:true
+    },
+    otpExpiration:{ 
+        type: DataTypes.DATE,
+        allowNull:true,
+        
+    }
+
+    
 }, {
     timestamps: true
 })
 
 module.exports = userModel;
-
+// console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
 sequelize.sync().then(() => {
     console.log(`user table is created `)
-}).catch((err) => console.log('unable to create table' + err))
+}).catch((err) => console.log('unable to create user table' + err))

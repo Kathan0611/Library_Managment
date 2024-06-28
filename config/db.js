@@ -16,5 +16,3 @@ sequelize.authenticate().then(()=>{
     {console.error('unable to connect database',error)})
 
 module.exports=sequelize;
-
-module.exports=sequelize;

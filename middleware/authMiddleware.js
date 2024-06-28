@@ -15,8 +15,8 @@ const validateRequest = async (req, res, next) => {
     if (!decoded) {
       return res.status(401).json({ message: "User is not found" });
     }
-    req.user = decoded.id;
-    
+    req.user = decoded.id; 
+
     next();
   } catch (err) {
     return res.status(401).json({ message: "token is not valid" });

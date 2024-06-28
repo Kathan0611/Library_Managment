@@ -7,8 +7,9 @@ exports.checkRole= function(roles){
       try{
         
         const user=await userModel.findOne({where:{id:req.user}});
-        const roled=user.role.toString()
-        console.log(roles)
+        console.log(user,"ioi")
+        const roled=user.roles.toString()
+        console.log(roles,"kllklkl")
         console.log(roles.includes(roled));
         if(roles.includes(roled)){
            next();
@@ -17,8 +18,8 @@ exports.checkRole= function(roles){
    
            return res.status(403).json({
                error:true,
-               statusCode:403,
-               message:'user are restricted to accessing the resource'
+               statusCode:403,    
+               message:`${user.name} are not admin to restricted to accessing the resource`
            })
         }
    

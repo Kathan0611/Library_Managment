@@ -5,9 +5,7 @@ const registerSchema= Joi.object({
     name:Joi.string().trim().required(),
     email:Joi.string().email().trim().required(),
     password:Joi.string().trim().required(),
-    roles:Joi.number().required(),
-    birthDate:Joi.date(),
-    Address:Joi.string().allow("").required()
+    mobilenum: Joi.number().required()
      
 });
 
@@ -20,7 +18,7 @@ const loginSchema= Joi.object({
 })
 
 const resetPassword = Joi.object({
-    email: Joi.string().trim().email().required().label("Email").trim(),
+    newPassword:Joi.string().trim().required()
   });
 
 const newpassword= Joi.object({
@@ -32,6 +30,10 @@ const forgotpassword =Joi.object({
     email:Joi.string().trim().required().trim()
 })
 
+const verifyOtp= Joi.object({
+    otp:Joi.string().regex(/^[0-9]{6}$/).message('digits must be 6 length').trim().required()
+})
+
 
 
 module.exports={
@@ -39,5 +41,6 @@ module.exports={
     loginSchema,
     resetPassword,
     newpassword,
-    forgotpassword
+    forgotpassword,
+    verifyOtp
 }

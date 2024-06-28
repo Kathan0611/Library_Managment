@@ -3,14 +3,18 @@ const catchAsync = require('./../utils/catchAsync');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
+const { randomInt } = require("crypto");
+const {sendOtpMail}=require('./../utils/nodemailer')
+const moment = require('moment-timezone');
 
+
+
+//signup User
 exports.signup = catchAsync(async (req, res) => {
-    console.log(req.body, "diidd")
 
-    const { name, email, password, birthDate, Address, roles } = req.body;
-
+    const { name, email, password, mobilenum } = req.body;
+    console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
     const existedUser = await userModel.findOne({ where: { email: email } })
-console.log(existedUser,"req.file")
     if (existedUser) {
         return res.status(400).json({
             error: true,
@@ -23,13 +27,8 @@ console.log(existedUser,"req.file")
             name,
             email,
             password: bcrypt.hashSync(password, 10),
-            birthDate,
-            // Image: ImagneName,
-            BannerImage: roles === 2 ? req.file.path.split("\\")[1] : null,
-            Address: roles === 2 ? Address : null,
-            roles
+            mobilenum,
         })
-console.log("ndnsns", newUser)
         if (!newUser) {
 
             return res.status(400).json({
@@ -40,10 +39,6 @@ console.log("ndnsns", newUser)
         }
 
         else {
-
-            // if(roles!=1 && isApproved){
-
-            // }
             return res.status(201).json({
                 error: false,
                 statusCode: 201,
@@ -54,63 +49,66 @@ console.log("ndnsns", newUser)
     }
 });
 
+//login user  Or Admin
 exports.login = catchAsync(async (req, res) => {
     const { email, password } = req.body;
 
-        const existUser = await userModel.findOne({ where: { [Op.or]: [{ email: email }, { name: email }] } });
+    const existUser = await userModel.findOne({ where: { [Op.or]: [{ email: email }, { name: email }] } });
 
-        if (!existUser) {
+    if (!existUser) {
 
-            return res.status(404).json({
+        return res.status(404).json({
+            error: true,
+            statusCode: 404,
+            message: 'user not found'
+        })
+    }
+    else {
+        const token = jwt.sign({ id: existUser.id }, process.env.SECRET_KEY, {
+            expiresIn: "1d",
+        });
+
+        if (!token) {
+            return res.status(400).json({ message: "token is not defined" });
+        }
+
+        const validatePassword = await bcrypt.compare(password, existUser.password);
+        if (!validatePassword) {
+            return res.status(401).json({
                 error: true,
-                statusCode: 404,
-                message: 'user not found'
+                statusCode: 401,
+                message: 'Unauthorized User',
+                
+                
+            })
+        }
+        const updateLoginStatus = await userModel.update({
+            isLogin: true // Set isLogin to true for clarity
+        }, {
+            where: { id: existUser.id }
+        })
+
+        if (!updateLoginStatus) {
+            return res.status(400).json({
+                error: true,
+                statusCode: 400,
+                message: 'User is not logged in'
             })
         }
         else {
-            const token = jwt.sign({ id: existUser.id }, process.env.SECRET_KEY, {
-                expiresIn: "1d",
-            });
-
-            if (!token) {
-                return res.status(400).json({ message: "token is not defined" });
-            }
-
-            const validatePassword = await bcrypt.compare(password, existUser.password);
-
-            if (!validatePassword) {
-                return res.status(401).json({
-                    error: false,
-                    statusCode: 401,
-                    message: 'Unauthorized User'
-                })
-            }
-            const updateLoginStatus = await userModel.update({
-                isLogin: true // Set isLogin to true for clarity
-            }, {
-                where: { id: existUser.id }
+            existUser.isLogin = updateLoginStatus[0];
+            // existUser.token = token   
+            return res.status(200).json({
+                error: false,
+                statusCode: 200,
+                message: 'user logging successfully',
+                data: { existUser, token },
             })
-
-            if (!updateLoginStatus) {
-                return res.status(400).json({
-                    error: true,
-                    statusCode: 400,
-                    message: 'User is not logged in'
-                })
-            }
-            else {
-                existUser.isLogin = updateLoginStatus[0];
-                existUser.token = token
-                return res.status(200).json({
-                    error: true,
-                    statusCode: 200,
-                    message: 'user logging successfully',
-                    data: {existUser, token},
-                })
-            }
         }
+    }
 })
 
+//getAllUser
 exports.getAllUser = catchAsync(async (req, res) => {
 
     const getAllusers = await userModel.findAll({});
@@ -132,9 +130,10 @@ exports.getAllUser = catchAsync(async (req, res) => {
     }
 })
 
+//singleUser
 exports.singleUser = catchAsync(async (req, res) => {
 
-    const userId = req.params;
+    const {id} = req.params;
     const singleuser = await userModel.findByPk(id);
 
     if (!singleuser) {
@@ -150,45 +149,37 @@ exports.singleUser = catchAsync(async (req, res) => {
             error: false,
             statusCode: 200,
             message: 'User get Successfully',
-            data: singleuser
+            data: singleuser 
         })
     }
 })
 
+//updateUser
 exports.updateUser = catchAsync(async (req, res) => {
+    
+    const {id} = req.params;
+    console.log(id)
+    const { name, mobilenum } = req.body
+   
 
-    const userId = req.params;
-    const { name, email, password, birthDate, mobilenum, Addresses } = req.body
-    const updateFields = {};
-    if (!userId || !name || !email || !password || !birthDate || !mobilenum || !Addresses) {
-        return res.status(422).json({
-            error: true,
-            statusCode: 422,
-            message: 'All field are required'
+    const existUser= await userModel.findOne({where:{id:id}});
+    console.log(existUser)
+    if(!existUser){
+        return res.status(404).json({
+            error:true,
+            statusCode:404,
+            message:'User not found for updation'
         })
     }
     else {
-
-        if (name) {
-            updateFields.name = name;
+            
+      
+        const updateObj = {
+            name, 
+            mobilenum
         }
-        if (email) {
-            updateFields.email = email;
-        }
-        if (password) {
-            updateFields.password = password;
-        }
-        if (birthDate) {
-            updateFields.birthDate = birthDate;
-        }
-        if (mobilenum) {
-            updateFields.mobilenum = mobilenum;
-        }
-        if (Addresses) {
-            updateFields.Addresses = Addresses;
-        }
-
-        const updateuser = await userModel.update(updateFields, { where: { id: userId } });
+        
+        const updateuser = await userModel.update(updateObj, { where: { id: id } });
 
         if (!updateuser) {
             return res.status(400).json({
@@ -201,12 +192,14 @@ exports.updateUser = catchAsync(async (req, res) => {
             return res.status(200).json({
                 error: false,
                 statusCode: 200,
-                message: 'User updated successfully'
+                message: 'User updated successfully',
+                data:updateuser
             })
         }
     }
 })
 
+//delete  for user
 exports.deleteUser = catchAsync(async (req, res) => {
     const { id } = req.params;
 
@@ -242,4 +235,184 @@ exports.deleteUser = catchAsync(async (req, res) => {
         }
 
     }
+})
+
+
+//forgotPassword api for user
+exports.forgotPassword=catchAsync(async (req,res)=>{
+     const {email}=req.body;
+
+
+     const findEmailSender= await  userModel.findOne({where:{email:email}});
+      
+     if(!findEmailSender){
+        return res.status(404).json({
+            error:true,
+            statusCode:404,
+            message:'User not found'
+        })
+     }
+     else{
+        const otp = randomInt(100000, 1000000);
+
+        const otpExpiration = Date.now() + 60000
+        console.log(otpExpiration)
+        const updated = await userModel.update(
+            {
+                otp: otp,
+                otpExpiration: otpExpiration
+            },          
+           {  where: { email: email }},
+            
+          );
+          console.log(updated);
+
+         await sendOtpMail(email,otp)
+         return res.status(200).json({
+            error:false,
+            statusCode:200,
+            message:'Successfully Sent OTP',
+            otp:otp
+        
+         })
+
+        
+     }
+    
+
+})
+
+//resetPassword  of User api
+exports.resetPassword = catchAsync(async (req, res) => {
+    
+     const { newPassword,otp } = req.body;
+    console.log(req.body)
+    //    console.log(otp,"klkl")    
+    //    console.log("kjkklkjlk")
+    const user=await  userModel.findOne({where:{otp:otp}});
+     
+    const salt = await bcrypt.genSaltSync(10);
+    const hashedPassword = await bcrypt.hashSync(newPassword, salt);
+ 
+    const updateOtp={
+        otp:null,
+        otpExpiration:null,
+        password:hashedPassword
+    }
+
+    const userupadte= await userModel.update(updateOtp,{where:{email:user.email}})
+      return res.status(200).json({
+        error: false,
+        statusCode: 200,
+        data: "Password reset successful",
+        userupadte
+      })
+  })
+
+//logout user or admin
+exports.logout = catchAsync(async (req, res) => {
+  
+      const existUser = await User.findOne({
+        where: { id: req.user },
+        raw: true,
+        nest: true,
+      });
+      const updateLoginStatus = await User.update({
+        isLogin: 0,
+        where: { id: existUser.id },
+      });
+  
+      if (updateLoginStatus) {
+        return res.status(200).json({
+          error: false,
+          statusCode: 200,
+          message: "User logout successfully",
+          data: updateLoginStatus,
+        });
+      }
+  });
+
+//changePassword user API
+exports.changePassword= catchAsync(async (req,res,next)=>{
+       const {email,password}=req.body;
+       let {newPassword}=req.body;
+
+       const exitsedUser= await userModel.findOne({where:{email:email}}) ;
+
+       if(!exitsedUser){
+          return res.status(404).json({
+            errror:true,
+            statusCode:404,
+            message:"User not found"
+          })
+       }
+       else{
+
+           if(!newPassword){
+              return res.status(404).json({
+                error:true,
+                statusCode:404,
+                message:'New password is required'
+              })
+           }
+           const validPassword= await bcrypt.compareSync(exitsedUser.password,newPassword);
+
+           if(validPassword){
+               return res.status(404).json({
+                error:true,
+                statusCode:404,
+                message:'Passwords already used'
+               })
+           }
+           else{
+              
+                const salt = await bcrypt.genSaltSync(10);
+                const hashPassword= await bcrypt.hashSync(newPassword,salt);
+
+                const  updatedUser= await userModel.update(hashPassword,{where:{email:email}});
+
+                if(!updatedUser){
+                    return res.status(400).json({
+                        error:true,
+                        statusCode:400,
+                        message:'Password not updated'
+                    })
+                }
+                else{
+
+                    return res.status(200).json({
+                        error:false,
+                        statusCode:200,
+                        message:'Password update successful'
+                    })
+                }
+
+
+               
+           }
+       }
+
+})
+exports.verify= catchAsync(async (req,res,next)=>{
+         const{otp}=req.body;
+        console.log(otp,"jkjh");
+
+    
+        const user = await userModel.findOne({where:{ otp: otp }});
+         
+
+        if (!user || user.otpExpiration < Date.now()) {
+          return res.status(400).json({
+            error:true,
+            statusCode:400,
+            message:'Invalid OTP'
+          });
+        }
+       
+       
+          return res.status(200).json({
+            error: true,
+            statusCode: 200,
+            message: "OTP verify successfully"
+})
 })

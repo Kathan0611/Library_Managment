@@ -10,7 +10,7 @@ const  transactionModel=sequelize.define('transactionModel',{
          }
       },
       bookId:{
-        type:DataTypes.STRING,
+        type:DataTypes.STRING, 
         references:{
             model:bookModel,
             key:'id'

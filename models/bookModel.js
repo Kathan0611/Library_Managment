@@ -1,43 +1,68 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('./../config/db');
-const userModel = require('./userModel')
+const CategoryModel = require('./CategoryModel');
+const userModel= require('./userModel');
+
 
 const BookModel = sequelize.define('BookModel', {
-    title: {
-        type: DataTypes.STRING
+    BookName: {
+        type: DataTypes.STRING,
+        allowNull:true
     },
-    description: {
-        type: DataTypes.STRING
-    },
-    author: {
-        type: DataTypes.STRING
-    },
-    book_added_by: {
+    Category: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: userModel,
-            key: 'id'
-
+        allowNull:true,
+        references:{
+            Model:CategoryModel,
+            key:'id'
         }
     },
-    BookNo: {
-        type: DataTypes.NUMBER,
-        allowNull: false
+    ISBN:{
+       type:DataTypes.STRING,
+       allowNull:true
     },
-    Image: {
-        type: DataTypes.BLOB,
+    Author: {
+        type: DataTypes.STRING,
+        allowNull:true
+    },
+    TotalQuantity:{
+       type:DataTypes.INTEGER,
+       allowNull:true,
+    },
+    Remaining_Quantity:{
+        type:DataTypes.INTEGER,
+        allowNull:true,
+        defaultValue:100
+    },
+    Price: {
+        type: DataTypes.INTEGER,
         allowNull: true
     },
-    publishDate: {
-        type: DataTypes.DATE
+    Image: {
+        type: DataTypes.STRING,
+        allowNull: true 
+    },
+    Publisher: {
+        type: DataTypes.STRING,
+        allowNull:true
+    },
+    Availability:{
+        type:DataTypes.ENUM,
+        allowNull:true,
+        values:['Available','Not Available'],
+        
     }
 }, {
-    timestamps: true
-})
+    timestamps: true,
+
+}) 
+
+
+CategoryModel.hasMany(BookModel, { foreignKey: 'Category' });
+BookModel.belongsTo(CategoryModel, { foreignKey: 'Category' });
 
 module.exports = BookModel;
 
 sequelize.sync().then(() => {
     console.log(`Book table is created `)
-}).catch((err) => console.log('unable to create table' + err))
+}).catch((err) => console.log('unable to create book table' + err.message))
