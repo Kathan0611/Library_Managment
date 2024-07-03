@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, STRING } = require('sequelize');
 const sequelize = require('./../config/db');
 const CategoryModel = require('./CategoryModel');
 const userModel= require('./userModel');
@@ -38,7 +38,7 @@ const BookModel = sequelize.define('BookModel', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
-    Image: {
+    Image: {    
         type: DataTypes.STRING,
         allowNull: true 
     },

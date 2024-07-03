@@ -2,13 +2,14 @@
 const {Sequelize}= require('sequelize');
 
 
-const sequelize= new Sequelize({
-    database:'library',
-    username:'root',
-    password:'',
-    host:'localhost',
-    dialect:'mysql'
-})
+// const sequelize= new Sequelize({
+//     database:'library',
+//     username:'root',
+//     password:'',
+//     host:'localhost',
+//     dialect:'mysql'
+// })
+const sequelize= new Sequelize('mysql://root:DtftHTjMYBlYQtpHBakjIbHJVscIfvnE@roundhouse.proxy.rlwy.net:26281/railway')
 
 sequelize.authenticate().then(()=>{
     console.log('connected established')

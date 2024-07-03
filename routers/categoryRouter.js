@@ -9,7 +9,8 @@ router.post('/createOne',categoryController.createCategory);
 router.get('/getAll',categoryController.getAllCategories);
 router.get('/getOne/:id',categoryController.singleCategory);
 router.delete('/deleteOne/:id',categoryController.deleteCategory);
-router.delete('/deleteAll',categoryController.destroyAllCategory)
+router.delete('/deleteAll',categoryController.destroyAllCategory);
+
 
 
 module.exports=router;

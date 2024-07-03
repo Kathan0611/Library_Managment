@@ -2,6 +2,7 @@
   "name": "librarymanagementsystem",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +13,8 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "bottleneck": "^2.19.5",
+    "cloudinary": "^2.2.0",
     "convert-base64-to-image": "^0.0.16",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
@@ -24,6 +27,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.10.1",
     "nodemailer": "^6.9.14",
+    "path": "^0.12.7",
     "sequelize": "^6.37.3",
     "start": "^5.1.0"
   },

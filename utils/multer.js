@@ -2,7 +2,7 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // console.log(file)
+    console.log(file)
     cb(null, 'uploads/')
 
   },
@@ -12,13 +12,13 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = function (req, file, cb) {
-
-  if (file.mimetype === 'image/jpeg' || file.mimetype == 'image/png' || file.mimetype == 'image/jpg') {
+       console.log(file)
+  if (file.mimetype === 'image/jpeg' || file.mimetype == 'image/png' || file.mimetype == 'image/jpg' || file.mimetype == 'application/pdf') {
     cb(null, true);
   } else {
     cb(new Error('Only JPEG, JPG, and PNG image files are allowed!'), false);
   }
 }
-const upload = multer({ storage: storage, limits: { fileSize: 2000000 }, fileFilter: fileFilter })
+const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 }, fileFilter: fileFilter })
 
 module.exports = upload;

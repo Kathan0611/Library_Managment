@@ -5,7 +5,7 @@ exports.createCategory=catchAsync(async (req,res)=>{
     const{categoryName}=req.body;
 
     const existedCategory= await CategoryModel.findAll({where:{categoryName:categoryName}})
-    console.log(existedCategory,"kllllk")               
+    console.log(existedCategory,"kllllk")                
     if(!existedCategory.length>1){
         return res.status(400).json({                      
             error:true,
@@ -23,7 +23,7 @@ exports.createCategory=catchAsync(async (req,res)=>{
     })
 })
 
-exports.getAllCategories=catchAsync(async(req,res)=>{
+exports. getAllCategories=catchAsync(async(req,res)=>{
 
     const allCategories= await CategoryModel.findAll();
 

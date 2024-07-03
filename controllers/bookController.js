@@ -1,32 +1,87 @@
 const { query, response } = require('express');
+const fs=require('fs');
+const path=require('path');
 const bookModel=require('../models/bookModel');
 const userModel = require('../models/userModel');
 const BookRequestModel=require('../models/bookReuestModel');
+const cloudinary = require('cloudinary').v2
 
 
 const catchAsync=require('../utils/catchAsync');
 const {Op}=require('sequelize');
 const BookModel = require('../models/bookModel');
 const moment=require('moment');
+const upload = require('../utils/multer');
 
 
 
+cloudinary.config({ 
+   cloud_name: 'dzjsh0yaj', 
+   api_key: '268313789642539', 
+   api_secret: '7k4EXg2o1ORMESgD3-XW8lg7arw' // Click 'View Credentials' below to copy your API secret
+});
+
+
+ 
+   
 
 //create Book api
 exports.createBook =catchAsync(async (req,res)=>{
+   // let uploadResult
    const {BookName,Category,ISBN,Author,TotalQuantity,Price,Publisher,Availability}=req.body;
-   console.log(req.body)
+   // console.log(req.body) 
+    
+      const {Image}=req.file;
+      //upload Image for base64
+   //   const encodeImage= new Buffer.from('C:\Users\THINKTANKER\Downloads\kathan.png').toString('base64')           ;
+     const decoded= Buffer.from(Image,"base64");   
+   //   console.log(decoded)     
+ 
+   //   const uploadsDir  = path.resolve(__dirname, '../uploads');
+   //    fs.promises.mkdir(uploadsDir, { recursive: true }) // Create uploads dir if it doesn't exist
+   //   .catch(err => console.error('Error creating uploads directory:', err)) ;
+     
+
+       const filePath = path.resolve(__dirname , '../uploads', Date.now() + '.png');
+
+            if(!filePath){
+               return null;
+            }
+          fs.writeFileSync(filePath,decoded); 
    
+        const data= await cloudinary.uploader.upload(filePath, {
+            folder: 'library', // Optional - specify a folder in Cloudinary
+            resource_type: 'auto' // Specify the type of resource (image, video, raw)
+          });
+         //  cloudinary.api.resource('sample_pdf', 
+         //    { pages: true },     
+         //    function(error, result) {
+         //       console.log(result, error); 
+         //    });
+
+         //  console.log(data)
+          console.log(result)
+   //  upload Image from cloudinary
+   // const imagePath =  path.resolve(__dirname, '../uploads/',Image);   
+
+   //  console.log(filePath)
+
+    // Get the URL of the uploaded image
+    const imageUrl = data.secure_url;
+       
+
+   
+     
     const existedBook= await bookModel.findOne({where:{BookName:BookName}});
-   
+
     if(existedBook){
-       return res.status(200).json({
+       return res.status(200).json({    
          error:true,
          statusCode:200,
          message:'Book already exists'
        })
-    }     
-    
+    }                              
+                        
      const book= await bookModel.create({
         BookName,
         Category,
@@ -34,10 +89,12 @@ exports.createBook =catchAsync(async (req,res)=>{
         ISBN,
         TotalQuantity,
         Remaining_Quantity:TotalQuantity,
-        Price
+        Price,    
+        Image:imageUrl
      })
-      
-      
+     
+      console.log(book,"KLKLKL")
+
       if(!book){
          return res.status(400).json({
             error:true,
@@ -157,16 +214,31 @@ exports.getOne=catchAsync(async (req,res)=>{
 })
 
 //getAllBooks
+
+
+// exports.getAll = async (req, res) => {
+//    try {
+//       console.log("Hello");  // Fixed console log message
+//       // Here you can add code to fetch data or perform other operations asynchronously
+//       // Example:
+//       // const data = await fetchData();  // Replace fetchData() with your actual async operation
+//       // res.status(200).json(data);      // Example response sending data back
+//    } catch (err) {
+//       console.error(err);  // Changed console.log to console.error for errors
+//       res.status(500).send("Server Error");  // Example of sending a server error response
+//    }
+// };
+
+
+
 exports.getAll =catchAsync(async (req,res)=>{
 
-   const getAllbook= await bookModel.findAll();
-   const totalCount=await bookModel.findAndCountAll();
-   
+   const getAllbook= await bookModel.findAll({});
 
    if(!getAllbook.length>0){
-      return res.status(400).json({
+      return res.status(404).json({
          error:true,
-         statusCode:400,
+         statusCode:404,
          message:"books are not available",
       })
    }
@@ -174,8 +246,7 @@ exports.getAll =catchAsync(async (req,res)=>{
       error:false,
       statusCode:200,
       message:"All books get Successfully",
-      data:getAllbook,
-      totalCount:totalCount.count
+      data:getAllbook
    })
 })
 
@@ -209,7 +280,7 @@ exports.updateBook=catchAsync(async(req,res)=>{
       
 
 })
-
+         
 //deleteSingle Book
 exports.deleteOne=catchAsync(
    async (req,res)=>{
@@ -349,36 +420,47 @@ exports.AssignedBookToUser=catchAsync(
 //return status update in bookrequests
 exports.returnBook=catchAsync(async(req,res)=>{
 
-     const {bookId,isBookApproved}=req.body;
+     const {bookId,isBookApproved,Remaining_Quantity}=req.body;
 
      const book= await BookRequestModel.findOne({where:{[Op.and]:[{bookId:bookId},{isBookApproved:isBookApproved}]}})
-   
-     const startDate=moment(book.startDate)
-     const endDate=moment(book.endDate)
+     console.log(book.returnStatus,"kllkl")
+     const startDate=moment(Date.now());
+
+     const endDate=moment(book.endDate);
 
      const diffInMilliseconds =endDate.diff(startDate);   
      console.log(diffInMilliseconds)          
      const duration = moment.duration(diffInMilliseconds);         
      const returnDay = duration.humanize(true); 
      const Day=returnDay.split(' ')[1]
-
+     
      if(Day<0){
-      
-      const returnstatus= await BookRequestModel.update({returnStatus:true},{where:{bookId:bookId}});
-   
+      // const returnstatus= await BookRequestModel.update({returnStatus:true,isBookApproved:-1},{where:{bookId:bookId}});
+      // const backStatus= await BookModel.update({Remaining_Quantity:Remaining_Quantity+1},{where:{id:bookId}})
       return res.status(200).json({
-        error:false,
+        error:false, 
         statusCode:200,     
         message:`returnDate was expired`,
         Day,
-        returnstatus
+        returnstatus,
+        backStatus
       })
      }
      else if(Day>=1){
+         //  console.log(book.returnStatus,"book")
+      if(book.returnStatus >0){
+         return res.status(200).json({error:false, statusCode:200 ,message:'book already returned'});
+      }
+       
+      const returnstatus= await BookRequestModel.update({returnStatus:true},{where:{bookId:bookId}});
+      const {Remaining_Quantity}= await BookModel.findOne({where:{id:bookId}});
+      const backStatus= await BookModel.update({Remaining_Quantity:Remaining_Quantity+1},{where:{id:bookId}});
          return res.status(200).json({
             error:false,
             statusCode:200,
-            message:`Book return left ${returnDay}`
+            message:`Book return left ${returnDay}`,
+            backStatus,
+            returnstatus
          })
 
      }
@@ -402,6 +484,38 @@ exports.getAllBookRequest=catchAsync(async (req,res)=>{
        message:'All requested book are available'
     })
 })
+
+
+exports.count= catchAsync(async(req,res)=>{
+     
+    const totalBook= await BookModel.findAndCountAll();
+    const availableBook= await BookModel.findAndCountAll({where:{Remaining_Quantity: {[Op.gt]: 0}}});
+    const returnBook= await BookRequestModel.findAndCountAll({where:{returnStatus:1}})
+    const issuesBook= await BookRequestModel.findAndCountAll({where:{isBookApproved:'approved'}});
+    const totalUser= await userModel.findAndCountAll({where:{roles:'user'}});  
+     
+   
+    if(!totalBook || !availableBook || !returnBook || !issuesBook || !totalUser){
+
+          return res.status(404).json({
+          error:true,
+          statusCode:404,
+          message:'count not available'
+       })
+    }
+                   
+    return res.status(200).json({
+      error:false,
+      statusCode:200,
+      message:'count get Successfully',
+      totalBook:totalBook,      
+      availableBook:availableBook,
+      returnBook:returnBook,
+      issuesBook:issuesBook,
+      totalUser:totalUser          
+    })
+
+});
 
 
 

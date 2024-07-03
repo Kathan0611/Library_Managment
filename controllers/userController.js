@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken');
 const { randomInt } = require("crypto");
 const {sendOtpMail}=require('./../utils/nodemailer')
 const moment = require('moment-timezone');
+const fs=require('fs');
+const cloudinary = require('cloudinary').v2 
 
 
 
@@ -111,7 +113,8 @@ exports.login = catchAsync(async (req, res) => {
 //getAllUser
 exports.getAllUser = catchAsync(async (req, res) => {
 
-    const getAllusers = await userModel.findAll({});
+     
+    const getAllusers = await userModel.findAll({where:{roles:'user'}});
 
     if (!getAllusers.length > 0) {
         return res.status(404).json({
@@ -158,13 +161,28 @@ exports.singleUser = catchAsync(async (req, res) => {
 exports.updateUser = catchAsync(async (req, res) => {
     
     const {id} = req.params;
-    console.log(id)
+    console.log(id) 
     const { name, mobilenum } = req.body
-   
-
+     console.log(req.body,"kllllllll")
+     
+    // if(BannerImage){
+    //     const decoded= Buffer.from(BannerImage,"base64");   
+    //     console.log(decoded)   
+    //     const filePath = path.resolve(__dirname , '../uploads', Date.now() + '.png');
+    //     fs.writeFileSync(filePath,decoded);
+    //     const data= await cloudinary.uploader.upload(filePath, {
+    //         folder: 'library', // Optional - specify a folder in Cloudinary
+    //         resource_type: 'image' // Specify the type of resource (image, video, raw)
+    //       });
+         
+    //       console.log(data)
+    // }
+  
     const existUser= await userModel.findOne({where:{id:id}});
-    console.log(existUser)
+    console.log(existUser) 
+
     if(!existUser){
+
         return res.status(404).json({
             error:true,
             statusCode:404,
@@ -173,12 +191,14 @@ exports.updateUser = catchAsync(async (req, res) => {
     }
     else {
             
+       
+        
       
         const updateObj = {
             name, 
             mobilenum
         }
-        
+
         const updateuser = await userModel.update(updateObj, { where: { id: id } });
 
         if (!updateuser) {
