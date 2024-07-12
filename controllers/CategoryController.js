@@ -3,16 +3,17 @@ const catchAsync=require('../utils/catchAsync');
 
 exports.createCategory=catchAsync(async (req,res)=>{
     const{categoryName}=req.body;
-
+     console.log(categoryName,"KLKL") 
     const existedCategory= await CategoryModel.findAll({where:{categoryName:categoryName}})
-    console.log(existedCategory,"kllllk")                
-    if(!existedCategory.length>1){
+    console.log(existedCategory,"kllllk")                    
+    if(existedCategory.length>0){
         return res.status(400).json({                      
             error:true,
             statusCode:400,
             message:'Category already exists'
         })
     }
+    
 
     const categoryCreated=await CategoryModel.create({categoryName})
     console.log(categoryCreated)
@@ -70,7 +71,7 @@ exports.deleteCategory=catchAsync(async(req,res)=>{
     console.log(id)
     const getCategory = await CategoryModel.findOne({where:{id:id}});
    console.log(getCategory);
-    if(!getCategory){
+    if(!getCategory){           
         return res.status(404).json({
             error:true,
             statusCode:404,

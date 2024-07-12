@@ -11,12 +11,14 @@ router.post('/createBook',upload.single('Image'),bookController.createBook)
 router.get('/getAll',bookController.getAll);
 router.get('/getOne/:id',bookController.getOne);
 router.put('/updateBook/:id',bookController.updateBook);        
-router.delete('/deleteOne/:id',bookController.deleteOne);
+router.delete('/deleteOne/:bookId',bookController.deleteOne);
 router.delete('/deleteAll',bookController.deleteAll);
 router.post('/updateQuantity',authMiddleware,checkRole('admin'),bookController.AssignedBookToUser);
-router.get('/addRequest/:BookId',authMiddleware,bookController.RequestForBook)
+router.post('/addRequest',authMiddleware,bookController.RequestForBook)
 router.post('/returnDate',bookController.returnBook)
-router.get('/count',authMiddleware,checkRole('admin'),bookController.count)
-          
+router.get('/count',authMiddleware,checkRole(['admin','user']),bookController.count)
+router.get('/search/:Category',bookController.search)
+router.get('/search/:BookName',bookController.searchBookByName)
+router.get('/showRequested',bookController.showRequested);
 
-module.exports=router;
+module.exports=router; 

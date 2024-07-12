@@ -12,8 +12,8 @@ const CategoryModel=  sequelize.define('CategoryModel',{
 
 
 module.exports=CategoryModel;
-sequelize.sync().then(()=>{  
-    console.log("Category table Created")
-  }).catch((err)=>{
-    console.log('error', err)
-  });
+// sequelize.sync().then(()=>{  
+//     console.log("Category table Created")
+//   }).catch((err)=>{
+//     console.log('error', err)
+//   });

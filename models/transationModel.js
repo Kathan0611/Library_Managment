@@ -29,6 +29,6 @@ const  transactionModel=sequelize.define('transactionModel',{
 
 module.exports=transactionModel;
 
-sequelize.sync().then(()=>{
-    console.log(`transaction table is created `)
-}).catch((err)=>console.log('unable to create table'+err))
+// sequelize.sync().then(()=>{
+//     console.log(`transaction table is created `)
+// }).catch((err)=>console.log('unable to create table'+err))

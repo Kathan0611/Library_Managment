@@ -17,7 +17,7 @@ exports.signup = catchAsync(async (req, res) => {
     const { name, email, password, mobilenum } = req.body;
     console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
     const existedUser = await userModel.findOne({ where: { email: email } })
-    if (existedUser) {
+    if (existedUser) {       
         return res.status(400).json({
             error: true,
             statusCode: 400,
@@ -89,7 +89,7 @@ exports.login = catchAsync(async (req, res) => {
         }, {
             where: { id: existUser.id }
         })
-
+     
         if (!updateLoginStatus) {
             return res.status(400).json({
                 error: true,
@@ -114,8 +114,14 @@ exports.login = catchAsync(async (req, res) => {
 exports.getAllUser = catchAsync(async (req, res) => {
 
      
-    const getAllusers = await userModel.findAll({where:{roles:'user'}});
-
+    const getAllusers = await userModel.findAll({
+        attributes: { exclude: ['password'] },
+        where: {
+          roles: 'user'
+        }
+      });
+      
+    console.log(getAllusers)
     if (!getAllusers.length > 0) {
         return res.status(404).json({
             error: true,
@@ -137,7 +143,7 @@ exports.getAllUser = catchAsync(async (req, res) => {
 exports.singleUser = catchAsync(async (req, res) => {
 
     const {id} = req.params;
-    const singleuser = await userModel.findByPk(id);
+    const singleuser = await userModel.findOne({where:{id:id},attributes:{exclude:['password']}});
 
     if (!singleuser) {
         return res.status(404).json({
@@ -162,7 +168,7 @@ exports.updateUser = catchAsync(async (req, res) => {
     
     const {id} = req.params;
     console.log(id) 
-    const { name, mobilenum } = req.body
+    const { name, mobilenum ,jobTitle,birthofDate,country,BannerImage} = req.body
      console.log(req.body,"kllllllll")
      
     // if(BannerImage){
@@ -196,7 +202,12 @@ exports.updateUser = catchAsync(async (req, res) => {
       
         const updateObj = {
             name, 
-            mobilenum
+            mobilenum,
+            jobTitle,
+            birthofDate,
+            country,
+            BannerImage
+
         }
 
         const updateuser = await userModel.update(updateObj, { where: { id: id } });
@@ -428,8 +439,7 @@ exports.verify= catchAsync(async (req,res,next)=>{
             message:'Invalid OTP'
           });
         }
-       
-       
+
           return res.status(200).json({
             error: true,
             statusCode: 200,

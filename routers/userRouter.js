@@ -12,7 +12,7 @@ const {checkRole}=require('../middleware/checkRoleMiddleware')
 router.post('/signup',validate(validateSchema.registerSchema), userController.signup);
 router.post('/login',validate(validateSchema.loginSchema),userController.login);
 router.get('/singleUser/:id',authMiddleware,userController.singleUser); 
-router.get('/getAlluser',authMiddleware,checkRole('admin'),userController.getAllUser);
+router.get('/getAlluser',authMiddleware,checkRole(['admin','user']),userController.getAllUser);
 router.put('/updateProfile/:id',authMiddleware,userController.updateUser);
 router.delete('/deleteUser/:id',authMiddleware,userController.deleteUser);     
 router.post('/logout',authMiddleware,userController.logout);

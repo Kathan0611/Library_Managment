@@ -8,6 +8,11 @@ const userModel = sequelize.define('userModel', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    Gender:{
+       type:DataTypes.ENUM,
+       values:['Male','Female','Transgender'],
+       allowNull:true
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: true
@@ -24,10 +29,6 @@ const userModel = sequelize.define('userModel', {
         allowNull: false,
         defaultValue:'user'
     },
-    Image: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
     BannerImage: { 
         type: DataTypes.STRING,
         allowNull: true
@@ -39,8 +40,20 @@ const userModel = sequelize.define('userModel', {
     },
     isdeleted: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: false,  
         defaultValue: 0
+    },
+    jobTitle: {
+       type:DataTypes.STRING,
+       allowNull:true,
+    },
+    birthofDate:{
+       type:DataTypes.DATEONLY,
+       allowNull:true
+    },
+    country:{
+      type:DataTypes.STRING,
+      allowNull:true
     },
     otp: {
         type:DataTypes.STRING,
@@ -50,15 +63,14 @@ const userModel = sequelize.define('userModel', {
         type: DataTypes.DATE,
         allowNull:true,
         
-    }
-
-    
+    } 
 }, {
     timestamps: true
 })
 
 module.exports = userModel;
+
 // console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
-sequelize.sync().then(() => {
-    console.log(`user table is created `)
-}).catch((err) => console.log('unable to create user table' + err))
+// userModel.sync().then(() => {
+//     console.log(`user table is created `)
+// }).catch((err) => console.log('unable to create user table' + err))

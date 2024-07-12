@@ -4,7 +4,13 @@ const CategoryModel = require('./CategoryModel');
 const userModel= require('./userModel');
 
 
+
 const BookModel = sequelize.define('BookModel', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
     BookName: {
         type: DataTypes.STRING,
         allowNull:true
@@ -51,6 +57,10 @@ const BookModel = sequelize.define('BookModel', {
         allowNull:true,
         values:['Available','Not Available'],
         
+    },
+    isdeleted:{
+        type:DataTypes.STRING,
+        defaultValue:0
     }
 }, {
     timestamps: true,
@@ -58,11 +68,12 @@ const BookModel = sequelize.define('BookModel', {
 }) 
 
 
-CategoryModel.hasMany(BookModel, { foreignKey: 'Category' });
-BookModel.belongsTo(CategoryModel, { foreignKey: 'Category' });
+// CategoryModel.hasMany(BookModel, { foreignKey: 'Category' });
+BookModel.belongsTo(CategoryModel, { foreignKey: 'Category' ,as :"category"});
+
 
 module.exports = BookModel;
 
-sequelize.sync().then(() => {
-    console.log(`Book table is created `)
-}).catch((err) => console.log('unable to create book table' + err.message))
+// sequelize.sync({alter:true}).then(() => {
+//     console.log(`Book table is created `)
+// }).catch((err) => console.log('unable to create book table' + err.message))

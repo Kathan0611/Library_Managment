@@ -34,7 +34,9 @@ const verifyOtp= Joi.object({
     otp:Joi.string().regex(/^[0-9]{6}$/).message('digits must be 6 length').trim().required()
 })
 
-
+const categoryName=Joi.object({
+    categoryName:Joi.string().trim().length(3).required()
+})
 
 module.exports={
     registerSchema,
@@ -42,5 +44,6 @@ module.exports={
     resetPassword,
     newpassword,
     forgotpassword,
-    verifyOtp
+    verifyOtp,
+    categoryName
 }

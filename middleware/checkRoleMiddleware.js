@@ -7,12 +7,15 @@ exports.checkRole= function(roles){
       try{
         
         const user=await userModel.findOne({where:{id:req.user}});
-        console.log(user,"ioi")
+
+        console.log("llllll",user)
+        console.log(roles,"jjjjjjjjjjjjjjjjjjj")
         const roled=user.roles.toString()
         console.log(roles,"kllklkl")
         console.log(roles.includes(roled));
         if(roles.includes(roled)){
            next();
+         req.user=roled;
         }
         else{
    
