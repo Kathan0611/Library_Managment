@@ -1,3 +1,4 @@
+const BookModel = require('../models/bookModel');
 const CategoryModel=require('../models/CategoryModel');
 const catchAsync=require('../utils/catchAsync');
 
@@ -26,7 +27,7 @@ exports.createCategory=catchAsync(async (req,res)=>{
 
 exports. getAllCategories=catchAsync(async(req,res)=>{
 
-    const allCategories= await CategoryModel.findAll();
+    const allCategories= await CategoryModel.findAll({include:[{model:BookModel,as:'book'}]});
 
     if(!allCategories){
         return res.status(404).json({
@@ -36,6 +37,7 @@ exports. getAllCategories=catchAsync(async(req,res)=>{
         })
     }
     else{
+        
         return res.status(200).json({
             error:false,
             statusCode:200,

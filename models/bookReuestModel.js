@@ -34,12 +34,12 @@ const BookRequestModel= sequelize.define('BookRequestModel',{
      endDate:{
         type:DataTypes.DATEONLY,
         allowNull:true
-     } ,
+     },
      returnStatus:{
         type:DataTypes.STRING,             
         defaultValue:0
      },
-      Day:{
+     Day:{
          type:DataTypes.STRING,
          defaultValues:0
       },
@@ -59,6 +59,6 @@ BookRequestModel.belongsTo(BookModel, { foreignKey: 'bookId', as: 'book', onDele
 module.exports=BookRequestModel;
 
 
-// sequelize.sync({alter:true}).then(()=>{
+// sequelize.sync().then(()=>{
 //     console.log('Book-request table created')
 // }).catch(err=>console.log(err))

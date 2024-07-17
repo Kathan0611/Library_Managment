@@ -1,8 +1,14 @@
 const {DataTypes}=require('sequelize');
 const sequelize= require('../config/db');
+const BookModel = require('./bookModel');
 
 const CategoryModel=  sequelize.define('CategoryModel',{
-      categoryName:{
+  // id: {
+  //   type: DataTypes.INTEGER,
+  //   primaryKey: true,
+  //   autoIncrement: true,
+  //   },
+     categoryName:{
         type:DataTypes.STRING,
         allowNull:false
       }
@@ -10,9 +16,11 @@ const CategoryModel=  sequelize.define('CategoryModel',{
     timestamps: true
 })
 
+// CategoryModel.hasMany(BookModel,{foreignKey:'bookId',as:'book'})
 
 module.exports=CategoryModel;
-// sequelize.sync().then(()=>{  
+  
+// CategoryModel.sync({alter:true}).then(()=>{  
 //     console.log("Category table Created")
 //   }).catch((err)=>{
 //     console.log('error', err)

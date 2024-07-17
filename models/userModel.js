@@ -70,6 +70,7 @@ const userModel = sequelize.define('userModel', {
 
 module.exports = userModel;
 
+
 // console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
 // userModel.sync().then(() => {
 //     console.log(`user table is created `)

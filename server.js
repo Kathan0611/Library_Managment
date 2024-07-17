@@ -1,7 +1,11 @@
 require('dotenv').config();
 const express=require('express');
+const cors = require('cors')
 // const Raz
 const app=express();
+
+app.use(cors())
+
 const userRouter= require('./routers/userRouter');
 const categoryRouter=require('./routers/categoryRouter');
 const bookRouter=require('./routers/bookRouter');
@@ -19,5 +23,5 @@ app.use('/categoryRouter',categoryRouter);
 const PORT=process.env.PORT
 
 app.listen(PORT,()=>{
-    console.log(`server running on port 3000`)       
+    console.log(`server running on port 3000`)        
 })

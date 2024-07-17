@@ -166,8 +166,8 @@ exports.singleUser = catchAsync(async (req, res) => {
 //updateUser
 exports.updateUser = catchAsync(async (req, res) => {
     
-    const {id} = req.params;
-    console.log(id) 
+    const userId=req.user;
+    console.log(userId,"jkk") 
     const { name, mobilenum ,jobTitle,birthofDate,country,BannerImage} = req.body
      console.log(req.body,"kllllllll")
      
@@ -184,8 +184,8 @@ exports.updateUser = catchAsync(async (req, res) => {
     //       console.log(data)
     // }
   
-    const existUser= await userModel.findOne({where:{id:id}});
-    console.log(existUser) 
+    const existUser= await userModel.findOne({where:{id:userId}});
+    console.log(existUser,"existUser") 
 
     if(!existUser){
 
@@ -196,10 +196,6 @@ exports.updateUser = catchAsync(async (req, res) => {
         })
     }
     else {
-            
-       
-        
-      
         const updateObj = {
             name, 
             mobilenum,
@@ -207,10 +203,9 @@ exports.updateUser = catchAsync(async (req, res) => {
             birthofDate,
             country,
             BannerImage
-
         }
 
-        const updateuser = await userModel.update(updateObj, { where: { id: id } });
+        const updateuser = await userModel.update(updateObj, { where: { id: userId } });
 
         if (!updateuser) {
             return res.status(400).json({
@@ -287,7 +282,7 @@ exports.forgotPassword=catchAsync(async (req,res)=>{
         const otp = randomInt(100000, 1000000);
 
         const otpExpiration = Date.now() + 60000
-        console.log(otpExpiration)
+        console.log(otpExpiration) 
         const updated = await userModel.update(
             {
                 otp: otp,
@@ -304,7 +299,6 @@ exports.forgotPassword=catchAsync(async (req,res)=>{
             statusCode:200,
             message:'Successfully Sent OTP',
             otp:otp
-        
          })
 
         
@@ -324,7 +318,7 @@ exports.resetPassword = catchAsync(async (req, res) => {
      
     const salt = await bcrypt.genSaltSync(10);
     const hashedPassword = await bcrypt.hashSync(newPassword, salt);
- 
+      
     const updateOtp={
         otp:null,
         otpExpiration:null,

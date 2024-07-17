@@ -69,10 +69,10 @@ const BookModel = sequelize.define('BookModel', {
 
 
 // CategoryModel.hasMany(BookModel, { foreignKey: 'Category' });
-BookModel.belongsTo(CategoryModel, { foreignKey: 'Category' ,as :"category"});
+BookModel.belongsTo(CategoryModel, {foreignKey: 'Category' ,as :"category"});
+CategoryModel.hasMany(BookModel,{foreignKey:'Category',as:"book"})
 
-
-module.exports = BookModel;
+module.exports = BookModel;           
 
 // sequelize.sync({alter:true}).then(() => {
 //     console.log(`Book table is created `)

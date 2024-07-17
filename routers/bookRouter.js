@@ -10,11 +10,11 @@ const {checkRole}= require('./../middleware/checkRoleMiddleware');
 router.post('/createBook',upload.single('Image'),bookController.createBook)
 router.get('/getAll',bookController.getAll);
 router.get('/getOne/:id',bookController.getOne);
-router.put('/updateBook/:id',bookController.updateBook);        
+router.put('/updateBook/:id',authMiddleware,checkRole('admin'),bookController.updateBook);        
 router.delete('/deleteOne/:bookId',bookController.deleteOne);
 router.delete('/deleteAll',bookController.deleteAll);
 router.post('/updateQuantity',authMiddleware,checkRole('admin'),bookController.AssignedBookToUser);
-router.post('/addRequest',authMiddleware,bookController.RequestForBook)
+router.post('/addRequest',authMiddleware,checkRole('user'),bookController.RequestForBook)
 router.post('/returnDate',bookController.returnBook)
 router.get('/count',authMiddleware,checkRole(['admin','user']),bookController.count)
 router.get('/search/:Category',bookController.search)

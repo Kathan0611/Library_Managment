@@ -189,7 +189,6 @@ exports.RequestForBook = catchAsync(async (req, res) => {
 
    const { BookId ,Day} = req.body;
    const userId = req.user;
-
    if(!Day){
       return res.status(404).json({
          message:'day are required'
@@ -199,7 +198,7 @@ exports.RequestForBook = catchAsync(async (req, res) => {
    const user = await userModel.findByPk(userId);
    console.log(user,"io")
    if (!user) {
-      return res.status(200).json({
+      return res.status(404).json({
          error: true,
          statusCode: 404,
          message: "User not found"
@@ -217,7 +216,7 @@ exports.RequestForBook = catchAsync(async (req, res) => {
 
    if (!book.Remaining_Quantity > 0) {
        
-      return res.status(200).json({
+      return res.status(404).json({
          error: true,
          statusCode: 404,
          message: "out of stock ",
@@ -226,49 +225,50 @@ exports.RequestForBook = catchAsync(async (req, res) => {
       })
    }
    else {
-
-      if (book.Remaining_Quantity > 0) {
-
-         const existedRequest = await BookRequestModel.findOne({ where: { [Op.and]: [{ userId: userId }, { bookId: book.id }] } })
-         console.log(existedRequest,"missing")
-         if (existedRequest) {
+         const existedRequest = await BookRequestModel.findOne({ where: { [Op.and]: [{ userId: userId }, { bookId: book.id },{isBookApproved:"pending"}] } })
+           if(!existedRequest)
+            {      
+            const approvedRequest= await  BookRequestModel.findOne({where:{ [Op.and]: [{ userId: userId }, { bookId: book.id },{isBookApproved:"approved"},{returnStatus:0}] }});
+             if(approvedRequest){
+                return res.status(200).json({
+                  error:true,
+                  statusCode:400,
+                  message:`book already ${approvedRequest.isBookApproved}`
+                })
+             }
+              const requestMethod = await BookRequestModel.create({
+               userId: userId,
+               bookId: book.id,
+               isBookApproved: 'pending',
+               Day:Day
+            });
+            console.log(requestMethod, "klklkl")
+            if (!requestMethod) {
+               return res.status(404).json({
+                  error: true,
+                  statusCode: 404,
+                  message: 'Invalid request'
+               })
+            }
+            else{    
+               return res.status(200).json({
+                  error: false,
+                  statusCode: 200,
+                  message: 'Request for book successfully',
+                  data: requestMethod
+               })                     
+            }
+           }
+         else{
             return res.status(400).json({
-               error: true,
-               statusCode: 400,
-               message: ` already Book No.${BookId} requested by user ${userId}`,
-
-            })
+               error:true,
+               statusCode:400,
+               message:`again book requested by user ${user.name}`
+            })   
          }
-         const requestMethod = await BookRequestModel.create({
-            userId: userId,
-            bookId: book.id,
-            isBookApproved: 'pending',
-            Day:Day
-         });
-         console.log(requestMethod, "klklkl")
-
-         if (!requestMethod) {
-            return res.status(404).json({
-               error: true,
-               statusCode: 404,
-               message: 'Invalid request'
-            })
-         }
-         else {
-
-            return res.status(200).json({
-               error: false,
-               statusCode: 200,
-               message: 'Request for book successfully',
-               data: requestMethod
-            })
-         }
-
-      }
-
-
+      
+      
    }
-
 })
 
 //Single Book
@@ -346,11 +346,11 @@ exports.updateBook = catchAsync(async (req, res) => {
    const { user, TotalQuantity, Price, Availability, Publisher } = req.body;
 
    const updateObject = {
-      user, TotalQuantity, Price, Availability, Publisher
-   }
+      user, TotalQuantity, Price, Availability, Publisher 
+   }             
 
    const updatedBookdetails = await bookModel.update(updateObject, { where: { id: id } });
-
+   
    if (!updatedBookdetails) {
       return res.status(400).json({
          error: true,
@@ -368,6 +368,7 @@ exports.updateBook = catchAsync(async (req, res) => {
 
 
 })
+   
 
 //deleteSingle Book
 exports.deleteOne = catchAsync(
@@ -498,21 +499,29 @@ exports.deleteAll = catchAsync(
 exports.AssignedBookToUser = catchAsync(
    async (req, res) => {
       
-      const { userId, bookId, isBookApproved,day} = req.body;
+      const { userId,bookId,isBookApproved,day} = req.body;
       console.log(req.body)
- 
 
+      if(!userId || !bookId ||!isBookApproved ||!day){
+         return res.status(422).json({
+            error:true,
+            statusCode:422,
+            message:"Invalid book assign"
+
+         })
+      }
       const startDate = moment(Date.now());
       const endDate = startDate.clone().add(day, 'days');
 
 
-      const requestedModel = await BookRequestModel.findOne({ where: { [Op.and]: [{ userId: userId }, { bookId: bookId }] } })
+      const requestedModel = await BookRequestModel.findOne({ where: { [Op.and]: [{ userId: userId }, { bookId: bookId },{isBookApproved:1}] } })
 
-
-      console.log(requestedModel, "yoi");
+   
+      console.log(requestedModel.isBookApproved, "yoi");
 
       const book = await bookModel.findByPk(bookId);
-
+       let quantity=book.Remaining_Quantity;
+      //  console.log(book.Remaining_Quantity,"youtube")
       if (book.Remaining_Quantity < 0) {
          await bookModel.update({
             Availability:'NotAvailable'
@@ -523,6 +532,9 @@ exports.AssignedBookToUser = catchAsync(
             message: 'Out of stock'
          })
       }
+      //  console.log(requestedModel,"klkl")
+      const status = isBookApproved == 2 ? "approved" : "rejected";
+      console.log(requestedModel.isBookApproved,"status")
       if (requestedModel.isBookApproved != 'pending') {
          return res.status(400).json({
             error: true,
@@ -530,11 +542,11 @@ exports.AssignedBookToUser = catchAsync(
             message: `Book already ${requestedModel.isBookApproved}`
          })
       }
-
-
-      const quantity = book.Remaining_Quantity - 1;
-
-      console.log(quantity);
+      //  console.log()
+      if(status!='rejected'){
+         quantity = quantity - 1;
+         console.log(quantity);
+      }
       
       if(!quantity>1){
          await bookModel.update({
@@ -542,12 +554,12 @@ exports.AssignedBookToUser = catchAsync(
           })
       
       }
-      const status = isBookApproved == 2 ? "Approved" : "Rejected";
+      // const status = isBookApproved == 2 ? "approved" : "rejected";
 
       
       const updateQuantity = await bookModel.update({ Remaining_Quantity: quantity }, { where: { id: book.id } })
 
-      const updateStatus = await BookRequestModel.update({ isBookApproved: isBookApproved, startDate: startDate, endDate: endDate }, { where: { bookId: requestedModel.bookId } })
+      const updateStatus = await BookRequestModel.update({ isBookApproved: status, startDate: startDate, endDate: endDate }, { where: { bookId: requestedModel.bookId } })
 
 
 
@@ -586,7 +598,7 @@ exports.AssignedBookToUser = catchAsync(
 //return status update in bookrequests
 exports.returnBook = catchAsync(async (req, res) => {
 
-   const { bookId, isBookApproved, Remaining_Quantity } = req.body;
+   const { bookId, isBookApproved } = req.body;
 
    const book = await BookRequestModel.findOne({ where: { [Op.and]: [{ bookId: bookId }, { isBookApproved: isBookApproved }] } ,include:[{model:bookModel,as:'book',attributes:['Image']}]})
    console.log(book.returnStatus, "kllkl")
@@ -658,27 +670,48 @@ exports.getAllBookRequest = catchAsync(async (req, res) => {
 
 exports.count = catchAsync(async (req, res) => {
 
+   const userId=req.user;
+   let issuesBookResult;
+   const {roles}= await userModel.findByPk(userId);
    const totalBook = await bookModel.findAndCountAll({where:{isdeleted:0}});
-   // const counts= await bookModel.count({where:{isdeleted:0}});
    const availableBook = await bookModel.findAndCountAll({ where: { Remaining_Quantity: { [Op.gt]: 0 },Availability:'Available'} });
    const returnBook = await BookRequestModel.findAndCountAll({ where: { returnStatus: 1 } ,include:[{model:bookModel,as:'book',attributes:['BookName','Image']},{model:userModel,as:'user',attributes:['name']}]})
-   const issuesBookResult = await BookRequestModel.findAndCountAll({
-      where: { isBookApproved: 'approved', returnStatus: 0 }, include: [{
-         model: bookModel,
-         as: 'book', // Specify the alias here
-         attributes: ['BookName','Image'] // Include attributes from BookModel
-      }],
-      //  attributes:[
-      //    [sequelize.literal('"book"."BookName"'), 'BookName'],
-      //  ],
-      raw: true, nest: true
-   });
-   console.log(totalBook,"klklkl")
+   if(roles=='user'){
+       issuesBookResult = await BookRequestModel.findAndCountAll({
+         where: { isBookApproved: 'approved', returnStatus: 0,userId:userId,isdelete:0}, include: [{
+            model: bookModel,
+            as: 'book', // Specify the alias here
+            attributes: ['BookName','Image'] // Include attributes from BookModel
+         },{        
+            model: userModel,
+            as:'user',
+            attributes:['name']
+         }],
+         raw: true, nest: true
+      });
+   }else{
+          issuesBookResult = await BookRequestModel.findAndCountAll({
+         where: { isBookApproved: 'approved', returnStatus: 0,isdelete:0}, include: [{
+            model: bookModel,
+            as: 'book', // Specify the alias here
+            attributes: ['BookName','Image'] // Include attributes from BookModel
+         },{
+            model:userModel,
+            as:'user',
+            attributes:['name']
+         }],
+         raw: true, nest: true
+      });
+     
+   }
+   // console.log(totalBook,"klklkl")
+   console.log(issuesBookResult,"issues")
+
    // const issuesBook= await BookRequestModel.findAndCountAll({where:{isBookApproved:'approved',returnStatus:0},include: [{
    //    model: bookModel,
    //    attributes: ["id", "BookName"],
    //  }]})   ;
-   console.log(issuesBookResult.rows[0].book.Image);
+   // console.log(issuesBookResult.rows[0].book.Image);
    // const totalBook2={
    //      count:counts,
    //      rows:totalBook.map(item =>({
@@ -712,7 +745,7 @@ exports.count = catchAsync(async (req, res) => {
          bookName:item.book.BookName,
          isBookApproved:item.isBookApproved,
          returnStatus:item.returnBookResult,
-         user:item.user.name
+         
       }))
    }
    console.log(returnBookResult)
@@ -726,10 +759,10 @@ exports.count = catchAsync(async (req, res) => {
             startDate: issue.startDate,
             endDate: issue.endDate,
             returnStatus: issue.returnStatus,
-            createdAt: issue.createdAt,
-            updatedAt: issue.updatedAt,
-            BookName: issue.book.BookName ,
-            Image:issue.book.Image// Move BookName to top level
+            Day:issue.Day,
+            BookName: issue.book.BookName,
+            Image:issue.book.Image,
+            userName:issue.user.name
         }))
     };
    console.log(issueBook,"lllllll")
@@ -738,7 +771,7 @@ exports.count = catchAsync(async (req, res) => {
    //    bookName: issue.Book ? issue.Book.BookName : null // Accessing BookName through the alias
    // }));
    // console.log(books)
-   if (!totalBook || !availableBook || !returnBookResult || !issuesBookResult || !totalUser) {
+   if (!totalBook || !availableBook || !returnBookResult || !issueBook || !totalUser) {
 
       return res.status(404).json({
          error: true,
@@ -820,15 +853,15 @@ exports.searchBookByName=catchAsync(async(req,res)=>{
 })
 
 exports.showRequested=catchAsync(async(req,res)=>{
-    const requestdBook= await BookRequestModel.findAll({where:{isBookApproved:'pending'},include:[{model:BookModel, as:'book',attributes:['Image','BookName']},{model:userModel,as:'user',attributes:['name']}]});
-    console.log(requestdBook)
+    const requestdBook= await BookRequestModel.findAll({where:{isBookApproved:'pending',isdelete:0},include:[{model:BookModel, as:'book',attributes:['Image','BookName']},{model:userModel,as:'user',attributes:['name']}]});
+    console.log(requestdBook,"89")
     if(!requestdBook){
       return res.status(400).json({
          error:true,
          statusCode:400,
-         message:'Books are not requested',
+         message:' Current not requested any book ',
       
-      })
+      })      
     }
     else{
         const show= requestdBook.map(object=>({
