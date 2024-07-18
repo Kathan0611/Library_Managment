@@ -9,10 +9,10 @@ const validateRequest = async (req, res, next) => {
       return res.status(401).json({ message: "token is not found" });
     }          
    
-    const decoded = await jwt.verify(token, process.env.SECRET_KEY);
-    console.log(decoded.id);
+    const decoded = await jwt.verify(token, process.env.access_token);
+    console.log(decoded.id,"io");
 
-    if (!decoded) {
+    if (!decoded.id) {
       return res.status(401).json({ message: "User is not found" });
     }
     req.user = decoded.id; 

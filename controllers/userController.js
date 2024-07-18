@@ -66,14 +66,25 @@ exports.login = catchAsync(async (req, res) => {
         })
     }
     else {
-        const token = jwt.sign({ id: existUser.id }, process.env.SECRET_KEY, {
+        const Atoken = jwt.sign({ id: existUser.id }, process.env.access_token, {
             expiresIn: "1d",
         });
-
-        if (!token) {
-            return res.status(400).json({ message: "token is not defined" });
+        const Rtoken= jwt.sign({id:existUser.id},process.env.access_token,{
+            expiresIn: "7d",
+        })
+        
+         
+        if (!Atoken) {
+            return res.status(400).json({ message: "Access token is not defined" });
         }
-
+        if(!Rtoken){
+            return res.status(400).json({message:"refresh token is not defined"})
+        }
+        await res.cookie('jwt',Rtoken,{
+            httpOnly: true,
+            sameSite: 'None', secure: true,
+            maxAge: 24 * 60 * 60 * 1000
+        })
         const validatePassword = await bcrypt.compare(password, existUser.password);
         if (!validatePassword) {
             return res.status(401).json({
@@ -99,12 +110,11 @@ exports.login = catchAsync(async (req, res) => {
         }
         else {
             existUser.isLogin = updateLoginStatus[0];
-            // existUser.token = token   
             return res.status(200).json({
                 error: false,
                 statusCode: 200,
                 message: 'user logging successfully',
-                data: { existUser, token },
+                data: { existUser, Atoken },
             })
         }
     }
@@ -204,7 +214,7 @@ exports.updateUser = catchAsync(async (req, res) => {
             country,
             BannerImage
         }
-
+        
         const updateuser = await userModel.update(updateObj, { where: { id: userId } });
 
         if (!updateuser) {
@@ -231,7 +241,7 @@ exports.deleteUser = catchAsync(async (req, res) => {
 
 
     const singleuser = await userModel.findOne({ where: { id: id } }, { isdeleted: 1 });
-
+     
     if (!singleuser) {
         return res.status(400).json({
             error: true,
@@ -439,4 +449,29 @@ exports.verify= catchAsync(async (req,res,next)=>{
             statusCode: 200,
             message: "OTP verify successfully"
 })
+})
+
+exports.refresh=catchAsync(async (req,res,next)=>{
+    console.log(req.header.cookie.Rtoken)
+     if(!req.header.cookie.Rtoken){
+          return res.redirect('/login');
+        // return res.status(404).json({
+        //     error:true,
+        //     statusCode:404,
+        //     message:'Token required'
+        // })
+     }
+     else{
+         
+          const acessToken= await jwt.sign({id:existUser.id},process.env.Atoken);
+
+           return res.status(200).json({
+            error:false,
+            statusCode:200,
+            message:"Token refrenced Successfully",
+            Atoken:acessToken
+           })
+
+
+     }
 })

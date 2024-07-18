@@ -16,7 +16,7 @@ router.delete('/deleteAll',bookController.deleteAll);
 router.post('/updateQuantity',authMiddleware,checkRole('admin'),bookController.AssignedBookToUser);
 router.post('/addRequest',authMiddleware,checkRole('user'),bookController.RequestForBook)
 router.post('/returnDate',bookController.returnBook)
-router.get('/count',authMiddleware,checkRole(['admin','user']),bookController.count)
+router.get('/count',authMiddleware,bookController.count)
 router.get('/search/:Category',bookController.search)
 router.get('/search/:BookName',bookController.searchBookByName)
 router.get('/showRequested',bookController.showRequested);

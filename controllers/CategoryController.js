@@ -4,6 +4,7 @@ const catchAsync=require('../utils/catchAsync');
 
 exports.createCategory=catchAsync(async (req,res)=>{
     const{categoryName}=req.body;
+    console.log(req.body,"jjjjjjjj")
      console.log(categoryName,"KLKL") 
     const existedCategory= await CategoryModel.findAll({where:{categoryName:categoryName}})
     console.log(existedCategory,"kllllk")                    
@@ -28,7 +29,8 @@ exports.createCategory=catchAsync(async (req,res)=>{
 exports. getAllCategories=catchAsync(async(req,res)=>{
 
     const allCategories= await CategoryModel.findAll({include:[{model:BookModel,as:'book'}]});
-
+        console.log(allCategories);
+        
     if(!allCategories){
         return res.status(404).json({
             error:true,

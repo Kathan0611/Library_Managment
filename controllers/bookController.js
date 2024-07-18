@@ -6,7 +6,7 @@ const bookModel = require('../models/bookModel');
 const userModel = require('../models/userModel');
 const BookRequestModel = require('../models/bookReuestModel');
 const cloudinary = require('cloudinary').v2
-const sequelize = require('sequelize')
+const Sequelize = require('sequelize')
 
 const catchAsync = require('../utils/catchAsync');
 const { Op } = require('sequelize');
@@ -161,7 +161,8 @@ exports.createBook = catchAsync(async (req, res) => {
       TotalQuantity,
       Remaining_Quantity: TotalQuantity,
       Price,
-      Image:uploadResult.secure_url
+      Image:uploadResult.secure_url,
+      Availability:"Available"
       
    })
 
@@ -228,7 +229,8 @@ exports.RequestForBook = catchAsync(async (req, res) => {
          const existedRequest = await BookRequestModel.findOne({ where: { [Op.and]: [{ userId: userId }, { bookId: book.id },{isBookApproved:"pending"}] } })
            if(!existedRequest)
             {      
-            const approvedRequest= await  BookRequestModel.findOne({where:{ [Op.and]: [{ userId: userId }, { bookId: book.id },{isBookApproved:"approved"},{returnStatus:0}] }});
+            const approvedRequest= await  BookRequestModel.findOne({where:{ [Op.and]: [{ userId: userId }, { bookId: book.id },{isBookApproved:"approved"},{returnStatus:0},{isdelete:0}] }});
+            console.log(approvedRequest,"200")
              if(approvedRequest){
                 return res.status(200).json({
                   error:true,
@@ -599,7 +601,7 @@ exports.AssignedBookToUser = catchAsync(
 exports.returnBook = catchAsync(async (req, res) => {
 
    const { bookId, isBookApproved } = req.body;
-
+    
    const book = await BookRequestModel.findOne({ where: { [Op.and]: [{ bookId: bookId }, { isBookApproved: isBookApproved }] } ,include:[{model:bookModel,as:'book',attributes:['Image']}]})
    console.log(book.returnStatus, "kllkl")
    const Image=book.book.Image;
@@ -628,11 +630,12 @@ exports.returnBook = catchAsync(async (req, res) => {
       })
    }
    else if (Day >= 1) {
+
       //  console.log(book.returnStatus,"book")
       // if (book.returnStatus > 0) {
       //    return res.status(200).json({ error: false, statusCode: 200, message: 'book already returned' });
       // }
-
+         
       const returnstatus = await BookRequestModel.update({ returnStatus: true }, { where: { bookId: bookId } });
       const { Remaining_Quantity } = await bookModel.findOne({ where: { id: bookId } });
       const backStatus = await bookModel.update({ Remaining_Quantity: Remaining_Quantity + 1 }, { where: { id: bookId } });
@@ -671,14 +674,23 @@ exports.getAllBookRequest = catchAsync(async (req, res) => {
 exports.count = catchAsync(async (req, res) => {
 
    const userId=req.user;
+   console.log(userId,"admin hoy to");
    let issuesBookResult;
-   const {roles}= await userModel.findByPk(userId);
+   const userRole= await userModel.findOne({where:{id:userId}});
+   console.log(userRole.roles,"-----results")
    const totalBook = await bookModel.findAndCountAll({where:{isdeleted:0}});
    const availableBook = await bookModel.findAndCountAll({ where: { Remaining_Quantity: { [Op.gt]: 0 },Availability:'Available'} });
    const returnBook = await BookRequestModel.findAndCountAll({ where: { returnStatus: 1 } ,include:[{model:bookModel,as:'book',attributes:['BookName','Image']},{model:userModel,as:'user',attributes:['name']}]})
-   if(roles=='user'){
+
+
+
+   if(userRole.roles==='user'){
+      console.log(userRole,"hanumaji")
        issuesBookResult = await BookRequestModel.findAndCountAll({
-         where: { isBookApproved: 'approved', returnStatus: 0,userId:userId,isdelete:0}, include: [{
+         where: {  [Sequelize.Op.or]: [
+            { isBookApproved: 'approved' },
+            { isBookApproved: 'rejected' }
+          ], returnStatus: 0,userId:userId,isdelete:0}, include: [{
             model: bookModel,
             as: 'book', // Specify the alias here
             attributes: ['BookName','Image'] // Include attributes from BookModel
@@ -689,9 +701,17 @@ exports.count = catchAsync(async (req, res) => {
          }],
          raw: true, nest: true
       });
-   }else{
+      console.log("wednesday")
+  
+   }
+   else{
+      console.log("admin-bhai")
           issuesBookResult = await BookRequestModel.findAndCountAll({
-         where: { isBookApproved: 'approved', returnStatus: 0,isdelete:0}, include: [{
+         where: {  [Sequelize.Op.or]: [
+            { isBookApproved: 'approved' },
+            { isBookApproved: 'rejected' }
+          ] , returnStatus: 0,isdelete:0}, 
+         include: [{
             model: bookModel,
             as: 'book', // Specify the alias here
             attributes: ['BookName','Image'] // Include attributes from BookModel
@@ -748,7 +768,7 @@ exports.count = catchAsync(async (req, res) => {
          
       }))
    }
-   console.log(returnBookResult)
+   // console.log(returnBookResult)
    const issueBook = {  
    count: issuesBookResult.count,
         rows: issuesBookResult.rows.map(issue => ({
@@ -765,7 +785,8 @@ exports.count = catchAsync(async (req, res) => {
             userName:issue.user.name
         }))
     };
-   console.log(issueBook,"lllllll")
+    console.log(issueBook);
+   // console.log(issueBook,"lllllll")
    // const books = issuesBook.rows.map(issue => ({
    //    id: issue.id, // Assuming issue.id is from BookRequestModel
    //    bookName: issue.Book ? issue.Book.BookName : null // Accessing BookName through the alias

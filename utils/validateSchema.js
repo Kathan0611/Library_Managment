@@ -35,7 +35,7 @@ const verifyOtp= Joi.object({
 })
 
 const categoryName=Joi.object({
-    categoryName:Joi.string().trim().length(3).required()
+    categoryName:Joi.string().trim().required()
 })
 
 module.exports={
