@@ -8,7 +8,7 @@ const {sendOtpMail}=require('./../utils/nodemailer')
 const moment = require('moment-timezone');
 const fs=require('fs');
 const cloudinary = require('cloudinary').v2 
-
+const path=require('path');
 
 
 //signup User
@@ -54,9 +54,9 @@ exports.signup = catchAsync(async (req, res) => {
 //login user  Or Admin
 exports.login = catchAsync(async (req, res) => {
     const { email, password } = req.body;
-
+    console.log(req.body)
     const existUser = await userModel.findOne({ where: { [Op.or]: [{ email: email }, { name: email }] } });
-
+    console.log(existUser)
     if (!existUser) {
 
         return res.status(404).json({
@@ -178,9 +178,9 @@ exports.updateUser = catchAsync(async (req, res) => {
     
     const userId=req.user;
     console.log(userId,"jkk") 
-    const { name, mobilenum ,jobTitle,birthofDate,country,BannerImage} = req.body
+    const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
      console.log(req.body,"kllllllll")
-     
+     console.log(req.file)
     // if(BannerImage){
     //     const decoded= Buffer.from(BannerImage,"base64");   
     //     console.log(decoded)   
@@ -206,13 +206,26 @@ exports.updateUser = catchAsync(async (req, res) => {
         })
     }
     else {
+        
+     const decoded= Buffer.from(BannerImage,'utf-8');   
+     console.log(decoded)
+
+        const resolve=path.resolve(__dirname, '../uploads/' + Date.now()+ '.png')
+        fs.writeFileSync(resolve,decoded);
+        console.log(resolve,"kl")
+        const data= await  cloudinary.uploader.upload(resolve,{
+           folder:'pdfs',
+            resource_type:'auto' 
+        })
+
+        console.log(data,"youtube");
         const updateObj = {
             name, 
             mobilenum,
             jobTitle,
             birthofDate,
             country,
-            BannerImage
+            BannerImage:data.secure_url
         }
         
         const updateuser = await userModel.update(updateObj, { where: { id: userId } });
@@ -452,8 +465,8 @@ exports.verify= catchAsync(async (req,res,next)=>{
 })
 
 exports.refresh=catchAsync(async (req,res,next)=>{
-    console.log(req.header.cookie.Rtoken)
-     if(!req.header.cookie.Rtoken){
+    const refreshToken=req.headers.cookies.Rtoken
+     if(!req.header.cookies.Rtoken){
           return res.redirect('/login');
         // return res.status(404).json({
         //     error:true,
@@ -463,15 +476,24 @@ exports.refresh=catchAsync(async (req,res,next)=>{
      }
      else{
          
-          const acessToken= await jwt.sign({id:existUser.id},process.env.Atoken);
+          const existrefeshToken= await jwt.verify(refreshToken,process.env.refresh_token);
+           if(!existrefeshToken){
+                 
+              return res.status(400).json({
+                error:true,
+                 statusCode:404,
+                 message:'Invalid refesh token'
+              })
 
-           return res.status(200).json({
-            error:false,
-            statusCode:200,
-            message:"Token refrenced Successfully",
-            Atoken:acessToken
-           })
-
-
+           }
+           else{
+            const acessToken= await jwt.sign({id:existrefeshToken.id},process.env.refresh_token);
+            return res.status(200).json({
+              erorr:false,
+              statusCode:200,
+              message:'Token refernece successfully',
+              Atoken:acessToken
+            })
+           }
      }
 })

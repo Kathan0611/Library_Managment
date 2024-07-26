@@ -26,9 +26,9 @@ exports.createCategory=catchAsync(async (req,res)=>{
     })
 })
 
-exports. getAllCategories=catchAsync(async(req,res)=>{
+exports.categoryWiseBook=catchAsync(async(req,res)=>{
 
-    const allCategories= await CategoryModel.findAll({include:[{model:BookModel,as:'book'}]});
+    const allCategories= await CategoryModel.findAll({include:[{model:BookModel,as:'book',where:{isdeleted:0}}]});
         console.log(allCategories);
         
     if(!allCategories){
@@ -49,6 +49,23 @@ exports. getAllCategories=catchAsync(async(req,res)=>{
     }
 })
 
+exports.getAllCategory=catchAsync(async(req,res)=>{
+    const allCategories= await CategoryModel.findAll()
+    if(!allCategories.length>0){
+        return res.status(400).json({
+            error:true,
+            statusCode:400,
+            message:"No Category found"
+        })
+    }
+    else{
+        return  res.status(200).json({
+            error:false,
+            statusCode:200,
+            data:allCategories
+        })
+    }
+})
 exports.singleCategory=catchAsync(async(req,res)=>{
     const{id}=req.params;
 

@@ -14,13 +14,13 @@ router.post('/login',validate(validateSchema.loginSchema),userController.login);
 router.post('/refresh',validate(validateSchema.refreshSchema),userController.refresh)
 router.get('/singleUser/:id',authMiddleware,userController.singleUser); 
 router.get('/getAlluser',authMiddleware,checkRole(['admin','user']),userController.getAllUser);
-router.put('/updateProfile',authMiddleware,checkRole(['admin','user']),userController.updateUser);
+router.put('/updateProfile',upload.single('BannerImage'),authMiddleware,checkRole(['admin','user']),userController.updateUser);
 router.delete('/deleteUser/:id',authMiddleware,userController.deleteUser);     
 router.post('/logout',authMiddleware,userController.logout);
 router.post('/forgotPassword',validate(validateSchema.forgotpassword),userController.forgotPassword);  
-router.post('/resetPassword',userController.resetPassword);
-router.post('/changePassword',userController.changePassword); 
-router.post('/verify',userController.verify);
+router.post('/resetPassword',validate(validateSchema.resetPassword),userController.resetPassword);
+router.post('/changePassword',validate(validateSchema.newpassword),userController.changePassword); 
+router.post('/verify',validate(validateSchema.verifyOtp),userController.verify);
                  
        
 module.exports=router;      

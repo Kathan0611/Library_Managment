@@ -7,15 +7,21 @@ const userModel = require('../models/userModel');
 const BookRequestModel = require('../models/bookReuestModel');
 const cloudinary = require('cloudinary').v2
 const Sequelize = require('sequelize')
-
 const catchAsync = require('../utils/catchAsync');
 const { Op } = require('sequelize');
 const moment = require('moment');
 const upload = require('../utils/multer');
 const CategoryModel = require('../models/CategoryModel');
 const BookModel = require('../models/bookModel');
-const { object } = require('joi');
+// const{io}=require('./../server');
+// console.log(io)
+// socket.on('connection', () => {
+//    console.log('A user connected');
+// });
 
+
+
+// socket.listen(5000);
 
 
 cloudinary.config({
@@ -30,60 +36,21 @@ cloudinary.config({
 
 //create Book api
 exports.createBook = catchAsync(async (req, res) => {
-   // let uploadResult
-   const { BookName, Category, ISBN, Author, TotalQuantity, Price, Publisher, Availability ,Image} = req.body;
-
-
-   console.log(Image,"hhh");
-   console.log(req.body);
-   // console.log(req.body) 
-   // console.log(Image,"klllll")
-   // const Image =req.file;
-   // console.log(Image)             
-                   
-   // const {Image}=req.file;      
+   
+   const { BookName, Category, ISBN, Author, TotalQuantity, Price, Publisher,Image} = req.body;
 
    
-         
-   // const pdf = req.file.filename;
-   // console.log(req.file,"hhhhhhh") 
-   // console.log(pdf,"kll;lklkllk")
-   //  // check if file field exist
-
-   //  let completeFileName = '';
-
-   //  if (req.file) {
-   //      const bookFilePath = path.resolve(__dirname, '../uploads/' + req.file.filename)
-   //       console.log(bookFilePath,"akash");
-   //      const bookFileName =req.file.filename;
-   //      completeFileName = bookFileName
-
- 
-   //      const uploadResultPdf = await cloudinary.uploader.upload(bookFilePath, {
-   //          resource_type: 'raw',
-   //          // filename_override: completeFileName,
-   //          folder: 'pdf',
-   //          format: 'pdf'
-   //      })
-                
-   //      completeFileName = uploadResultPdf.secure_url;
-   //      console.log(completeFileName)
-   //    //   await fs.promises.unlink(bookFilePath)
-   //  }
+   console.log(Image,"hhh");
+   console.log(req.body);
+  
 
 
 
-
-   // upload Image for base64
-   //   const encodeImage= new Buffer.from().toString('base64')           ;
+  
      const decoded= Buffer.from(Image,"base64");   
      console.log(decoded)
 
-   //   const uploadsDir  = path.resolve(__dirname, '../uploads');
-   //    fs.promises.mkdir(uploadsDir, { recursive: true }) // Create uploads dir if it doesn't exist
-   //   .catch(err => console.error('Error creating uploads directory:', err)) ;
-    
-   // const bookFilePath = path.resolve(__dirname, '../uploads/' + req.file.filename)
+   
    const filePath = path.resolve(__dirname, '../uploads/' + Date.now()+ '.png' );
 
    console.log(filePath,"kathan")
@@ -96,10 +63,7 @@ exports.createBook = catchAsync(async (req, res) => {
 
              
 
-   // const bookFilePath = path.resolve(__dirname, '../uploads/' + req.file.filename)
-   // console.log(bookFilePath)
    
-      // console.log(Image,"llllllll")
       const uploadResult = await cloudinary.uploader.upload(filePath , {
    
          folder: 'pdfs', // Optional - specify a folder in lCloudinary
@@ -110,26 +74,6 @@ exports.createBook = catchAsync(async (req, res) => {
 
       console.log(uploadResult)
    
-   // const removeFile =  fs.unlink(filePath, (err) => {console.log(err)})
-   // console.log(removeFile)
-
-   // //  cloudinary.api.resource('sample_pdf', 
-   // //    { pages: true },     
-   // //    function(error, result) {
-   // //       console.log(result, error); 
-   // //    });
-
-   // console.log(uploadResult.secure_url,"klllll")
-   // await fs.promises.unlink(filePath)
-   //  console.log(result)
-   //  upload Image from cloudinary
-   // const imagePath =  path.resolve(__dirname, '../uploads/',Image);   
-
-   //  console.log(filePath)
-
-   // Get the URL of the uploaded image
-   //  const imageUrl = data.secure_url;
-
 
 
 
@@ -175,6 +119,14 @@ exports.createBook = catchAsync(async (req, res) => {
          message: 'Somehow book is not Added'
       })
    }
+//    socket.emit('bookCreated', {
+//       message: 'A new book has been created!',
+//       data: book
+//   });
+//   socket.on('bookCreated', (data) => {
+//       console.log('New Book Created:', data.message);
+//       // Handle the new book data as needed
+//   });
    return res.status(201).json({
       error: false,
       statusCode: 201,
@@ -277,7 +229,7 @@ exports.RequestForBook = catchAsync(async (req, res) => {
 exports.getOne = catchAsync(async (req, res) => {
 
    const { id } = req.params;
-
+   //  console.log(id);
    const singleBook = await bookModel.findOne({ where: { id: id } });
 
    if (!singleBook) {
@@ -314,7 +266,7 @@ exports.getOne = catchAsync(async (req, res) => {
 // };
 
 
-
+//getAll books wise Category
 exports.getAll = catchAsync(async (req, res) => {
 
    const getAllbook = await bookModel.findAll({
@@ -535,7 +487,7 @@ exports.AssignedBookToUser = catchAsync(
          })
       }
       //  console.log(requestedModel,"klkl")
-      const status = isBookApproved == 2 ? "approved" : "rejected";
+      const status = isBookApproved == 2 ? 'approved' : 'rejected';
       console.log(requestedModel.isBookApproved,"status")
       if (requestedModel.isBookApproved != 'pending') {
          return res.status(400).json({
@@ -561,7 +513,7 @@ exports.AssignedBookToUser = catchAsync(
       
       const updateQuantity = await bookModel.update({ Remaining_Quantity: quantity }, { where: { id: book.id } })
 
-      const updateStatus = await BookRequestModel.update({ isBookApproved: status, startDate: startDate, endDate: endDate }, { where: { bookId: requestedModel.bookId } })
+      const updateStatus = await BookRequestModel.update({ isBookApproved: status, startDate: startDate, endDate: endDate }, { where: { id: requestedModel.id } })
 
 
 
@@ -601,21 +553,24 @@ exports.AssignedBookToUser = catchAsync(
 exports.returnBook = catchAsync(async (req, res) => {
 
    const { bookId, isBookApproved } = req.body;
+   console.log(req.body)
     
-   const book = await BookRequestModel.findOne({ where: { [Op.and]: [{ bookId: bookId }, { isBookApproved: isBookApproved }] } ,include:[{model:bookModel,as:'book',attributes:['Image']}]})
+   const book = await BookRequestModel.findOne({ where: { [Op.and]: [{ bookId: bookId }, { isBookApproved: isBookApproved }] } ,include:[{model:bookModel,as:'book',attributes:['Image']},{model:userModel,as:'user',attributes:['name']}]})
    console.log(book.returnStatus, "kllkl")
    const Image=book.book.Image;
 
    const startDate = moment(Date.now());
-
-   const endDate = moment(book.endDate);        
-
+   console.log(startDate)
+   const endDate = moment(book.endDate);            
+     
    const diffInMilliseconds = endDate.diff(startDate);
-   console.log(diffInMilliseconds)
+   // console.log(diffInMilliseconds)
    const duration = moment.duration(diffInMilliseconds);
+   console.log(duration,"Hello")
    const returnDay = duration.humanize(true);
+   console.log(returnDay,"llllll")
    const Day = returnDay.split(' ')[1]
-
+     console.log(Day,"yiou")
    if (Day < 0) {
       // const returnstatus= await BookRequestModel.update({returnStatus:true,isBookApproved:-1},{where:{bookId:bookId}});
       // const backStatus= await BookModel.update({Remaining_Quantity:Remaining_Quantity+1},{where:{id:bookId}})
@@ -670,26 +625,25 @@ exports.getAllBookRequest = catchAsync(async (req, res) => {
    })
 })
 
-
+//
 exports.count = catchAsync(async (req, res) => {
 
    const userId=req.user;
-   console.log(userId,"admin hoy to");
+   // console.log(userId,"admin hoy to");
    let issuesBookResult;
    const userRole= await userModel.findOne({where:{id:userId}});
-   console.log(userRole.roles,"-----results")
-   const totalBook = await bookModel.findAndCountAll({where:{isdeleted:0}});
-   const availableBook = await bookModel.findAndCountAll({ where: { Remaining_Quantity: { [Op.gt]: 0 },Availability:'Available'} });
+   // console.log(userRole.roles,"-----results")
+   const totalBook = await bookModel.findAndCountAll({where:{isdeleted:0,Category:{ [Op.not]: null}},include:[{model:CategoryModel,as:'category',attributes:['categoryName','id']}]});
+   const availableBook = await bookModel.findAndCountAll({ where: { Remaining_Quantity: { [Op.gt]: 0 },Availability:'Available',Category:{ [Op.not]: null}} });
    const returnBook = await BookRequestModel.findAndCountAll({ where: { returnStatus: 1 } ,include:[{model:bookModel,as:'book',attributes:['BookName','Image']},{model:userModel,as:'user',attributes:['name']}]})
-
+   console.log(returnBook,"meri behna")
 
 
    if(userRole.roles==='user'){
       console.log(userRole,"hanumaji")
        issuesBookResult = await BookRequestModel.findAndCountAll({
          where: {  [Sequelize.Op.or]: [
-            { isBookApproved: 'approved' },
-            { isBookApproved: 'rejected' }
+            { isBookApproved: 'approved' }
           ], returnStatus: 0,userId:userId,isdelete:0}, include: [{
             model: bookModel,
             as: 'book', // Specify the alias here
@@ -708,8 +662,7 @@ exports.count = catchAsync(async (req, res) => {
       console.log("admin-bhai")
           issuesBookResult = await BookRequestModel.findAndCountAll({
          where: {  [Sequelize.Op.or]: [
-            { isBookApproved: 'approved' },
-            { isBookApproved: 'rejected' }
+            { isBookApproved: 'approved' }
           ] , returnStatus: 0,isdelete:0}, 
          include: [{
             model: bookModel,
@@ -731,27 +684,27 @@ exports.count = catchAsync(async (req, res) => {
    //    model: bookModel,
    //    attributes: ["id", "BookName"],
    //  }]})   ;
-   // console.log(issuesBookResult.rows[0].book.Image);
-   // const totalBook2={
-   //      count:counts,
-   //      rows:totalBook.map(item =>({
-   //         id:item.book.id,
-   //         BookName:item.book.BookName,
-   //         Author:item.book.Author,
-   //         Price:item.book.Price,
-   //         Image:item.book.Image,
-   //         user:item.userId
-   //      }))
-   // }
-   // const totalBook2=totalBook.map(object=>(
-   //    {
-   //       id:object.id,
-   //       BookName:object.book.BookName,
-   //       Author:object.book.Author,
-   //       Price:object.book.Price,
-   //       Image:object.book.Image,
-         
-   //    }))
+   // // console.log(issuesBookResult.rows[0].book.Image);
+     const totalBookResult= {
+         count:totalBook.count,
+         rows:totalBook.rows.map(object=>({
+            Author:object.Author,
+            Availability:object.Availability,
+            BookName:object.BookName,
+            Description:object.Description,
+            Image:object.Image,
+            Price:object.Price,
+            Publisher:object.Publisher,
+            Remaining_Quantity:object.Remaining_Quantity,
+            TotalQuantity:object.TotalQuantity,
+            category:object.category.categoryName,
+            categoryId:object.category.id,
+            createdAt:object.createdAt,
+            id:object.id,
+            isdeleted:object.isdeleted,
+            updatedAt:object.updatedAt
+         }))
+    }
    const totalUser = await userModel.findAndCountAll({ where: { roles: 'user' } });
    const returnBookResult={
       count:returnBook.count,
@@ -765,6 +718,7 @@ exports.count = catchAsync(async (req, res) => {
          bookName:item.book.BookName,
          isBookApproved:item.isBookApproved,
          returnStatus:item.returnBookResult,
+         username:item.user.name
          
       }))
    }
@@ -805,7 +759,7 @@ exports.count = catchAsync(async (req, res) => {
       error: false,
       statusCode: 200,
       message: 'count get Successfully',
-      totalBook: totalBook,
+      totalBook: totalBookResult,
       availableBook: availableBook,
       returnBook: returnBookResult,
       issuesBook: issueBook,
@@ -905,5 +859,40 @@ exports.showRequested=catchAsync(async(req,res)=>{
     }
 })
 
+exports.Myorder=catchAsync(async (req,res)=>{
+        const useId=req.user;
+        const myOrder= await BookRequestModel.findAll({where:{userId:useId,isdelete:0},include:[{model:BookModel, as:'book',attributes:['Image','BookName']},{model:userModel,as:'user',attributes:['name']}]});
+        if(!myOrder.length>0){
+         return res.status(400).json({
+            error:true,
+            statusCode:400,
+            message:'user not given by Order',
 
+         })
+        }
+        else{
+            const orders={
+               rows:myOrder.map((order)=>({
+                  Day:order.Day,
+                  bookName:order.book.BookName,
+                  Image:order.book.Image,
+                  bookId:order.bookId,
+                  endDate:order.endDate,
+                  startDate:order.startDate,
+                  isdelete:order.isdelete,
+                  returnStatus:order.returnStatus ,
+                  userId:order.userId,
+                  username:order.user.name,
+                  id:order.id,
+                  isBookApproved:order.isBookApproved
+               }))
+            }
+           return res.status(200).json({
+            error:false,
+            statusCode:200,
+            message:'get order by user',
+            data:orders
+           })
+        }
+})                 
 

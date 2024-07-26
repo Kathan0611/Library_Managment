@@ -31,6 +31,7 @@
     "path": "^0.12.7",
     "razorpay": "^2.9.4",
     "sequelize": "^6.37.3",
+    "socket.io": "^4.7.5",
     "start": "^5.1.0",
     "stripe": "^16.2.0"
   },

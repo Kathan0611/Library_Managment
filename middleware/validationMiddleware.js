@@ -8,10 +8,10 @@ module.exports = function (schema) {
   return async function (req, res, next) {
     try {
 
-       const {email,password,name,role}=req.body;
-        
-      const { error, value } = await schema.validate(req.body);
       
+      const { error, value } = await schema.validate(req.body);
+      console.log(error,"invalidation:::")
+      console.log(value,";;;;;;;;;;;;;")
       if (error) {
         return res.status(400).json({
           success: false,
@@ -22,6 +22,7 @@ module.exports = function (schema) {
       }
 
       req.body = value; 
+      console.log(req.body);
       next();
     } catch (err) {
       

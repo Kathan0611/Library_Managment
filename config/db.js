@@ -11,6 +11,7 @@ const sequelize= new Sequelize({
 })
 
 // const sequelize= new Sequelize('mysql://root:DtftHTjMYBlYQtpHBakjIbHJVscIfvnE@roundhouse.proxy.rlwy.net:26281/railway')
+// roundhouse.proxy.rlwy.net:26281
 
 sequelize.authenticate().then(()=>{
     console.log('connected established')
