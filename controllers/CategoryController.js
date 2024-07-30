@@ -2,6 +2,8 @@ const BookModel = require('../models/bookModel');
 const CategoryModel=require('../models/CategoryModel');
 const catchAsync=require('../utils/catchAsync');
 
+
+//create Category by Admin
 exports.createCategory=catchAsync(async (req,res)=>{
     const{categoryName}=req.body;
     console.log(req.body,"jjjjjjjj")
@@ -26,6 +28,7 @@ exports.createCategory=catchAsync(async (req,res)=>{
     })
 })
 
+//Categorywise all Book show
 exports.categoryWiseBook=catchAsync(async(req,res)=>{
 
     const allCategories= await CategoryModel.findAll({include:[{model:BookModel,as:'book',where:{isdeleted:0}}]});
@@ -49,6 +52,7 @@ exports.categoryWiseBook=catchAsync(async(req,res)=>{
     }
 })
 
+//getAllCategory
 exports.getAllCategory=catchAsync(async(req,res)=>{
     const allCategories= await CategoryModel.findAll()
     if(!allCategories.length>0){
@@ -66,6 +70,8 @@ exports.getAllCategory=catchAsync(async(req,res)=>{
         })
     }
 })
+
+//getAll SingleCategory
 exports.singleCategory=catchAsync(async(req,res)=>{
     const{id}=req.params;
 
@@ -87,6 +93,7 @@ exports.singleCategory=catchAsync(async(req,res)=>{
     }
 })
 
+//deleteOneCategory by Admin
 exports.deleteCategory=catchAsync(async(req,res)=>{
     const{id}=req.params;
     console.log(id)
@@ -113,6 +120,7 @@ exports.deleteCategory=catchAsync(async(req,res)=>{
     }
 })
 
+//destroyAllCateogry
 exports.destroyAllCategory= catchAsync(async (req,res)=>{
     
        const deleteAllCategory= await CategoryModel.truncate(); 
@@ -128,6 +136,7 @@ exports.destroyAllCategory= catchAsync(async (req,res)=>{
        
 })
 
+//updateAllCategory
 exports.updateCategory=catchAsync(async (req,res)=>{
         const{id}=req.params;
         const{categoryName}=req.body;

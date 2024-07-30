@@ -16,7 +16,7 @@ cloudinary.config({
     api_key: process.env.api_key,
     api_secret: process.env.api_secret // Click 'View Credentials' below to copy your API secret
  });
- 
+
 //signup User
 exports.signup = catchAsync(async (req, res) => {
 
@@ -447,6 +447,7 @@ exports.changePassword= catchAsync(async (req,res,next)=>{
        }
 
 })
+//verify Otp
 exports.verify= catchAsync(async (req,res,next)=>{
          const{otp}=req.body;
         console.log(otp,"jkjh");
@@ -454,7 +455,7 @@ exports.verify= catchAsync(async (req,res,next)=>{
     
         const user = await userModel.findOne({where:{ otp: otp }});
          
-
+    
         if (!user || user.otpExpiration < Date.now()) {
           return res.status(400).json({
             error:true,
@@ -470,6 +471,7 @@ exports.verify= catchAsync(async (req,res,next)=>{
 })
 })
 
+//refershToken
 exports.refresh=catchAsync(async (req,res,next)=>{
     const refreshToken=req.headers.cookies.Rtoken
      if(!req.header.cookies.Rtoken){

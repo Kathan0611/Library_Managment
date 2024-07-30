@@ -10,8 +10,7 @@ module.exports = function (schema) {
 
       
       const { error, value } = await schema.validate(req.body);
-      console.log(error,"invalidation:::")
-      console.log(value,";;;;;;;;;;;;;")
+      console.log(error)
       if (error) {
         return res.status(400).json({
           success: false,

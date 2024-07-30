@@ -20,7 +20,7 @@ router.post('/logout',authMiddleware,userController.logout);
 router.post('/forgotPassword',validate(validateSchema.forgotpassword),userController.forgotPassword);  
 router.post('/resetPassword',validate(validateSchema.resetPassword),userController.resetPassword);
 router.post('/changePassword',validate(validateSchema.newpassword),userController.changePassword); 
-router.post('/verify',validate(validateSchema.verifyOtp),userController.verify);
+router.post('/verify',userController.verify);
                  
        
 module.exports=router;      

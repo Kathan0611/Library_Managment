@@ -254,21 +254,6 @@ exports.getOne = catchAsync(async (req, res) => {
    })
 })
 
-//getAllBooks
-
-
-// exports.getAll = async (req, res) => {
-//    try {
-//       console.log("Hello");  // Fixed console log message
-//       // Here you can add code to fetch data or perform other operations asynchronously
-//       // Example:
-//       // const data = await fetchData();  // Replace fetchData() with your actual async operation
-//       // res.status(200).json(data);      // Example response sending data back
-//    } catch (err) {
-//       console.error(err);  // Changed console.log to console.error for errors
-//       res.status(500).send("Server Error");  // Example of sending a server error response
-//    }
-// };
 
 
 //getAll books wise Category
@@ -628,7 +613,7 @@ exports.getAllBookRequest = catchAsync(async (req, res) => {
    })
 })
 
-//
+//count of all book
 exports.count = catchAsync(async (req, res) => {
 
    const userId=req.user;
@@ -830,6 +815,7 @@ exports.searchBookByName=catchAsync(async(req,res)=>{
      
 })
 
+//show all requested book by user
 exports.showRequested=catchAsync(async(req,res)=>{
     const requestdBook= await BookRequestModel.findAll({where:{isBookApproved:'pending',isdelete:0},include:[{model:BookModel, as:'book',attributes:['Image','BookName']},{model:userModel,as:'user',attributes:['name']}]});
     console.log(requestdBook,"89")
@@ -862,6 +848,7 @@ exports.showRequested=catchAsync(async(req,res)=>{
     }
 })
 
+//All order given by user
 exports.Myorder=catchAsync(async (req,res)=>{
         const useId=req.user;
         const myOrder= await BookRequestModel.findAll({where:{userId:useId,isdelete:0},include:[{model:BookModel, as:'book',attributes:['Image','BookName']},{model:userModel,as:'user',attributes:['name']}]});
@@ -899,3 +886,6 @@ exports.Myorder=catchAsync(async (req,res)=>{
         }
 })                 
 
+exports.extend=catchAsync(async(req,res)=>{
+    co
+})

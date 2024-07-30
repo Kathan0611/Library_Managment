@@ -21,5 +21,6 @@ router.get('/search/:Category',validate(validateSchema.categoryName),authMiddlew
 router.get('/search/:BookName',validate(validateSchema.bookName),authMiddleware,checkRole('user'),bookController.searchBookByName)
 router.get('/showRequested',authMiddleware,checkRole('admin'),bookController.showRequested);
 router.get('/myOrder',authMiddleware,checkRole('user'),bookController.Myorder)
+router.get('/extendDate',authMiddleware,checkRole('user'),bookController.extend)
 
 module.exports=router; 
