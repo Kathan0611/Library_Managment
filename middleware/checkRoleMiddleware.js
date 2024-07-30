@@ -11,7 +11,8 @@ exports.checkRole= function(roles){
         console.log("llllll",user)
         console.log(roles,"jjjjjjjjjjjjjjjjjjj")
         const roled=user.roles.toString()
-        console.log(roles,"kllklkl")
+        console.log(roled,"kllklkl")
+        console.log(roles)
         console.log(roles.includes(roled));
         if(roles.includes(roled)){
            next();

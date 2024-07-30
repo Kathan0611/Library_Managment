@@ -72,7 +72,6 @@ const BookModel = sequelize.define('BookModel', {
 }) 
 
 
-// CategoryModel.hasMany(BookModel, { foreignKey: 'Category' });
 BookModel.belongsTo(CategoryModel, {foreignKey: 'Category' ,as :"category"});
 CategoryModel.hasMany(BookModel,{foreignKey:'Category',as:"book"})
 

@@ -13,6 +13,7 @@ const moment = require('moment');
 const upload = require('../utils/multer');
 const CategoryModel = require('../models/CategoryModel');
 const BookModel = require('../models/bookModel');
+const { doesNotReject } = require('assert');
 // const{io}=require('./../server');
 // console.log(io)
 // socket.on('connection', () => {
@@ -37,7 +38,7 @@ cloudinary.config({
 //create Book api
 exports.createBook = catchAsync(async (req, res) => {
    
-   const { BookName, Category, ISBN, Author, TotalQuantity, Price, Publisher,Image} = req.body;
+   const { BookName, Category, ISBN, Author, TotalQuantity, Price, Description,Image} = req.body;
 
    
    console.log(Image,"hhh");
@@ -106,7 +107,8 @@ exports.createBook = catchAsync(async (req, res) => {
       Remaining_Quantity: TotalQuantity,
       Price,
       Image:uploadResult.secure_url,
-      Availability:"Available"
+      Availability:"Available",
+      Description
       
    })
 
@@ -141,7 +143,9 @@ exports.createBook = catchAsync(async (req, res) => {
 exports.RequestForBook = catchAsync(async (req, res) => {
 
    const { BookId ,Day} = req.body;
+   console.log(req.body,"LLLLL")
    const userId = req.user;
+   // console.log(userId)
    if(!Day){
       return res.status(404).json({
          message:'day are required'
@@ -157,7 +161,8 @@ exports.RequestForBook = catchAsync(async (req, res) => {
          message: "User not found"
       })
    }
-   const book = await bookModel.findByPk(BookId);
+   // console.log(BookId)
+   const book = await bookModel.findOne({where:{id:BookId}});
    console.log(book,"noo")
    if (!book) {
       return res.status(404).json({
@@ -553,16 +558,14 @@ exports.AssignedBookToUser = catchAsync(
 exports.returnBook = catchAsync(async (req, res) => {
 
    const { bookId, isBookApproved } = req.body;
-   console.log(req.body)
     
    const book = await BookRequestModel.findOne({ where: { [Op.and]: [{ bookId: bookId }, { isBookApproved: isBookApproved }] } ,include:[{model:bookModel,as:'book',attributes:['Image']},{model:userModel,as:'user',attributes:['name']}]})
-   console.log(book.returnStatus, "kllkl")
    const Image=book.book.Image;
 
    const startDate = moment(Date.now());
-   console.log(startDate)
+   console.log(startDate,"ddd")
    const endDate = moment(book.endDate);            
-     
+     console.log(endDate,"ddd")
    const diffInMilliseconds = endDate.diff(startDate);
    // console.log(diffInMilliseconds)
    const duration = moment.duration(diffInMilliseconds);
@@ -634,7 +637,7 @@ exports.count = catchAsync(async (req, res) => {
    const userRole= await userModel.findOne({where:{id:userId}});
    // console.log(userRole.roles,"-----results")
    const totalBook = await bookModel.findAndCountAll({where:{isdeleted:0,Category:{ [Op.not]: null}},include:[{model:CategoryModel,as:'category',attributes:['categoryName','id']}]});
-   const availableBook = await bookModel.findAndCountAll({ where: { Remaining_Quantity: { [Op.gt]: 0 },Availability:'Available',Category:{ [Op.not]: null}} });
+   const availableBook = await bookModel.findAndCountAll({ where: { isdeleted:0,Remaining_Quantity: { [Op.gt]: 0 },Availability:'Available',Category:{ [Op.not]: null},} });
    const returnBook = await BookRequestModel.findAndCountAll({ where: { returnStatus: 1 } ,include:[{model:bookModel,as:'book',attributes:['BookName','Image']},{model:userModel,as:'user',attributes:['name']}]})
    console.log(returnBook,"meri behna")
 
@@ -688,37 +691,37 @@ exports.count = catchAsync(async (req, res) => {
      const totalBookResult= {
          count:totalBook.count,
          rows:totalBook.rows.map(object=>({
-            Author:object.Author,
-            Availability:object.Availability,
-            BookName:object.BookName,
-            Description:object.Description,
-            Image:object.Image,
-            Price:object.Price,
-            Publisher:object.Publisher,
-            Remaining_Quantity:object.Remaining_Quantity,
-            TotalQuantity:object.TotalQuantity,
-            category:object.category.categoryName,
-            categoryId:object.category.id,
-            createdAt:object.createdAt,
-            id:object.id,
-            isdeleted:object.isdeleted,
-            updatedAt:object.updatedAt
+            Author:object?.Author,
+            Availability:object?.Availability,
+            BookName:object?.BookName,
+            Description:object?.Description,
+            Image:object?.Image,
+            Price:object?.Price,
+            Publisher:object?.Publisher,
+            Remaining_Quantity:object?.Remaining_Quantity,
+            TotalQuantity:object?.TotalQuantity,
+            category:object?.category?.categoryName,
+            categoryId:object?.category?.id,
+            createdAt:object?.createdAt,
+            id:object?.id,
+            isdeleted:object?.isdeleted,
+            updatedAt:object?.updatedAt
          }))
     }
    const totalUser = await userModel.findAndCountAll({ where: { roles: 'user' } });
    const returnBookResult={
       count:returnBook.count,
       rows:returnBook.rows.map(item =>({
-         id:item.id,
-         userId:item.userId,
-         bookId:item.bookId,
-         Image:item.book.Image,
-         startDate:item.startDate,
-         endDate:item.endDate,
-         bookName:item.book.BookName,
-         isBookApproved:item.isBookApproved,
-         returnStatus:item.returnBookResult,
-         username:item.user.name
+         id:item?.id,
+         userId:item?.userId,
+         bookId:item?.bookId,
+         Image:item?.book?.Image,
+         startDate:item?.startDate,
+         endDate:item?.endDate,
+         bookName:item?.book?.BookName,
+         isBookApproved:item?.isBookApproved,
+         returnStatus:item?.returnBookResult,
+         username:item?.user?.name
          
       }))
    }
@@ -726,17 +729,17 @@ exports.count = catchAsync(async (req, res) => {
    const issueBook = {  
    count: issuesBookResult.count,
         rows: issuesBookResult.rows.map(issue => ({
-            id: issue.id,
-            userId: issue.userId,
-            bookId: issue.bookId,
-            isBookApproved: issue.isBookApproved,
-            startDate: issue.startDate,
-            endDate: issue.endDate,
-            returnStatus: issue.returnStatus,
-            Day:issue.Day,
-            BookName: issue.book.BookName,
-            Image:issue.book.Image,
-            userName:issue.user.name
+            id: issue?.id,
+            userId: issue?.userId,
+            bookId: issue?.bookId,
+            isBookApproved: issue?.isBookApproved,
+            startDate: issue?.startDate,
+            endDate: issue?.endDate,
+            returnStatus: issue?.returnStatus,
+            Day:issue?.Day,
+            BookName: issue?.book?.BookName,
+            Image:issue?.book?.Image,
+            userName:issue?.user?.name
         }))
     };
     console.log(issueBook);

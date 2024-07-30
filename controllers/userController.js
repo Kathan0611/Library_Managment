@@ -15,6 +15,8 @@ const path=require('path');
 exports.signup = catchAsync(async (req, res) => {
 
     const { name, email, password, mobilenum } = req.body;
+    console.log(req.body,"signup")
+    // console.log()
     console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
     const existedUser = await userModel.findOne({ where: { email: email } })
     if (existedUser) {       
@@ -178,21 +180,19 @@ exports.updateUser = catchAsync(async (req, res) => {
     
     const userId=req.user;
     console.log(userId,"jkk") 
-    const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
+    const { name, mobilenum ,jobTitle,birthofDate,country,BannerImage} = req.body
      console.log(req.body,"kllllllll")
-     console.log(req.file)
-    // if(BannerImage){
-    //     const decoded= Buffer.from(BannerImage,"base64");   
-    //     console.log(decoded)   
-    //     const filePath = path.resolve(__dirname , '../uploads', Date.now() + '.png');
-    //     fs.writeFileSync(filePath,decoded);
-    //     const data= await cloudinary.uploader.upload(filePath, {
-    //         folder: 'library', // Optional - specify a folder in Cloudinary
-    //         resource_type: 'image' // Specify the type of resource (image, video, raw)
-    //       });
+     console.log(req.file,"deep")
+    
+        const filePath = path.resolve(__dirname , '../uploads/'+ req.file.filename);
+         console.log(filePath)
+        const data= await cloudinary.uploader.upload(filePath, {
+            folder: 'library', // Optional - specify a folder in Cloudinary
+            resource_type: 'auto' // Specify the type of resource (image, video, raw)
+          });
          
-    //       console.log(data)
-    // }
+          console.log(data)
+
   
     const existUser= await userModel.findOne({where:{id:userId}});
     console.log(existUser,"existUser") 
@@ -207,18 +207,18 @@ exports.updateUser = catchAsync(async (req, res) => {
     }
     else {
         
-     const decoded= Buffer.from(BannerImage,'utf-8');   
-     console.log(decoded)
+    //  const decoded= Buffer.from(BannerImage,'utf-8');   
+    //  console.log(decoded)
 
         const resolve=path.resolve(__dirname, '../uploads/' + Date.now()+ '.png')
-        fs.writeFileSync(resolve,decoded);
-        console.log(resolve,"kl")
-        const data= await  cloudinary.uploader.upload(resolve,{
-           folder:'pdfs',
-            resource_type:'auto' 
-        })
+        // fs.writeFileSync(resolve,decoded);
+        // console.log(resolve,"kl")
+        // const data= await  cloudinary.uploader.upload(resolve,{
+        //    folder:'pdfs',
+        //     resource_type:'auto' 
+        // })
 
-        console.log(data,"youtube");
+        // console.log(data,"youtube");
         const updateObj = {
             name, 
             mobilenum,

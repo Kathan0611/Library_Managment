@@ -8,7 +8,7 @@ const BookRequestModel= sequelize.define('BookRequestModel',{
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-  },
+     },
      userId:{
         type:DataTypes.INTEGER,
         allowNull:true,
@@ -24,7 +24,7 @@ const BookRequestModel= sequelize.define('BookRequestModel',{
             model:BookModel,
             key:'id'
         },
-      //   onDelete: 'CASCADE', // this will enable cascading deletes
+       
      },
      isBookApproved:{
         type:DataTypes.ENUM,
@@ -55,15 +55,16 @@ const BookRequestModel= sequelize.define('BookRequestModel',{
 })
 
 // BookRequestModel.hasOne(BookModel,{ foreignKey: 'id' })
-// BookModel.belongsTo(BookRequestModel,{ foreignKey: 'id' })
+// BookModel.belongsTo(BookRequestModel,{ foreignKey: 'bookId' ,as:'book'})
 // 
 // BookRequestModel.belongsTo(BookModel, { foreignKey: 'bookId', targetKey: 'id' });
 BookRequestModel.belongsTo(userModel, {foreignKey:'userId', as :'user'  });
 BookRequestModel.belongsTo(BookModel, { foreignKey: 'bookId', as: 'book'}); 
 
+
 module.exports=BookRequestModel;
 
 
-sequelize.sync().then(()=>{
-    console.log('Book-request table created')
-}).catch(err=>console.log(err))
+// sequelize.sync({alter:true}).then(()=>{
+//     console.log('Book-request table created')
+// }).catch(err=>console.log(err))

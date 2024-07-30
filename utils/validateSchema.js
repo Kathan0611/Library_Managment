@@ -43,7 +43,7 @@ const bookName=Joi.object({
 const AddBookSchema=Joi.object({
     BookName:Joi.string().trim().required(),
     Author:Joi.string().trim().required(),
-    // Description:Joi.string().required(),
+    Description:Joi.string().required(),
     Category:Joi.string().required(),
     Image:Joi.string().trim().required(),
     ISBN:Joi.string().trim().required(),
