@@ -14,6 +14,7 @@ const upload = require('../utils/multer');
 const CategoryModel = require('../models/CategoryModel');
 const BookModel = require('../models/bookModel');
 const { doesNotReject } = require('assert');
+const { error } = require('console');
 // const{io}=require('./../server');
 // console.log(io)
 // socket.on('connection', () => {
@@ -886,6 +887,49 @@ exports.Myorder=catchAsync(async (req,res)=>{
         }
 })                 
 
-exports.extend=catchAsync(async(req,res)=>{
-    co
+exports.extendDay=catchAsync(async(req,res)=>{
+
+      const {bookId,userId,endDate}=req.body;
+
+       if(!bookId || !userId || !Day){
+         return res.status(400).json({
+              statusCode:400,
+              error:true,
+              message:"All filed are required",
+      
+         })
+       }
+       else{
+           const extendedBook= await BookRequestModel.findOne({where:{bookId:bookId,userId:userId}});
+
+           if(!extendedBook){
+              return res.status(404).json({
+               error:true,
+               statusCode:404,
+               message:'book not found'
+              })
+           }
+           else{
+             
+            const updateEndDate= await BookRequestModel.update({endDate:endDate},{where:{bookId:bookId,userId:userId}})
+
+           if(!updateEndDate){
+            return res.status(400).json({
+               error:true,
+               statusCode:400,
+               message:"endDate is not updated"
+            })
+           }
+           else{
+               return res.status(200).json({
+                  error:false,
+                  statusCode:200,
+                  message:"succeessfully update endDate",
+                  data:updateEndDate
+               })
+           }
+           
+           }
+       }
+
 })
