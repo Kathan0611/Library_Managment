@@ -18,7 +18,8 @@ const loginSchema= Joi.object({
 })
 
 const resetPassword = Joi.object({
-    newPassword:Joi.string().trim().required()
+    newPassword:Joi.string().trim().required(),
+    otp:Joi.string().trim().required()
   });
 
 const newpassword= Joi.object({
@@ -32,7 +33,7 @@ const forgotpassword =Joi.object({
 
 const verifyOtp= Joi.object({
     otp:Joi.string().length(6).trim().required()
-})
+}) 
 
 const categoryName=Joi.object({
     categoryName:Joi.string().trim().required()
