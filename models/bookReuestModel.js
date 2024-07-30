@@ -65,6 +65,6 @@ BookRequestModel.belongsTo(BookModel, { foreignKey: 'bookId', as: 'book'});
 module.exports=BookRequestModel;
 
 
-// sequelize.sync({alter:true}).then(()=>{
+// sequelize.sync().then(()=>{
 //     console.log('Book-request table created')
 // }).catch(err=>console.log(err))

@@ -180,7 +180,7 @@ exports.updateUser = catchAsync(async (req, res) => {
     
     const userId=req.user;
     console.log(userId,"jkk") 
-    const { name, mobilenum ,jobTitle,birthofDate,country,BannerImage} = req.body
+    const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
      console.log(req.body,"kllllllll")
      console.log(req.file,"deep")
     
@@ -210,7 +210,7 @@ exports.updateUser = catchAsync(async (req, res) => {
     //  const decoded= Buffer.from(BannerImage,'utf-8');   
     //  console.log(decoded)
 
-        const resolve=path.resolve(__dirname, '../uploads/' + Date.now()+ '.png')
+        // const resolve=path.resolve(__dirname, '../uploads/' + Date.now()+ '.png')
         // fs.writeFileSync(resolve,decoded);
         // console.log(resolve,"kl")
         // const data= await  cloudinary.uploader.upload(resolve,{
