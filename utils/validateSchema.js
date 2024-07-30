@@ -31,7 +31,7 @@ const forgotpassword =Joi.object({
 })
 
 const verifyOtp= Joi.object({
-    otp:Joi.string().regex(/^[0-9]{6}$/).message('digits must be 6 length').trim()
+    otp:Joi.string().regex(/[0-9]/g).length(6).trim()
 })
 
 const categoryName=Joi.object({
