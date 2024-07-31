@@ -891,7 +891,7 @@ exports.extendDay=catchAsync(async(req,res)=>{
 
       const {bookId,userId,endDate}=req.body;
 
-       if(!bookId || !userId || !Day){
+       if(!bookId || !userId || !endDate){
          return res.status(400).json({
               statusCode:400,
               error:true,
