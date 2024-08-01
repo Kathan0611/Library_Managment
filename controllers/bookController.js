@@ -13,8 +13,6 @@ const moment = require('moment');
 const upload = require('../utils/multer');
 const CategoryModel = require('../models/CategoryModel');
 const BookModel = require('../models/bookModel');
-const { doesNotReject } = require('assert');
-const { error } = require('console');
 // const{io}=require('./../server');
 // console.log(io)
 // socket.on('connection', () => {
@@ -39,42 +37,43 @@ cloudinary.config({
 //create Book api
 exports.createBook = catchAsync(async (req, res) => {
    
-   const { BookName, Category, ISBN, Author, TotalQuantity, Price, Description,Image} = req.body;
+   const { BookName, Category, ISBN, Author, TotalQuantity, Price, Description} = req.body;
+   // const uploadedFiles = [];
+   const { Image, BookPdf } = req.files;
+   console.log(req.files)
+   const imagePath = Image ? Image[0].filename : null;
+   const bookPdfPath = BookPdf ? BookPdf[0].filename : null;
+   // console.log(Image,"klkl");
 
-   
-   console.log(Image,"hhh");
-   console.log(req.body);
+   // console.log(BookPdf,"hhh");
+   // console.log(req.body);
   
 
 
 
   
-     const decoded= Buffer.from(Image,"base64");   
-     console.log(decoded)
+   //   const decoded= Buffer.from(Image,"base64");   
+   //   console.log(decoded)
 
    
-   const filePath = path.resolve(__dirname, '../uploads/' + Date.now()+ '.png' );
+   const ImagefilePath = path.resolve(__dirname, '../uploads/' + imagePath);
+   const bookfilePath=path.resolve(__dirname,'../uploads/'+ bookPdfPath);
+   // console.log(filePath,"kathan")
+   // if (!filePath) {
+   //    return null;
+   // }
 
-   console.log(filePath,"kathan")
-   if (!filePath) {
-      return null;
-   }
-
-   fs.writeFileSync(filePath, decoded);
-
-
-             
-
+   // fs.writeFileSync(filePath, decoded);
    
-      const uploadResult = await cloudinary.uploader.upload(filePath , {
-   
-         folder: 'pdfs', // Optional - specify a folder in lCloudinary
+      const uploadResult = await cloudinary.uploader.upload(ImagefilePath , {
+         folder: 'Book', 
          resource_type: 'auto',
-   
-   
       })
-
-      console.log(uploadResult)
+      const  uploadBook= await cloudinary.uploader.upload(bookfilePath,{
+         folder:"Bookpdfs",
+          resource_type:"auto"
+      })
+      console.log(uploadBook)
    
 
 
@@ -97,7 +96,7 @@ exports.createBook = catchAsync(async (req, res) => {
          statusCode:404
       })
     }
-    console.log(categoryId.id)
+   //  console.log(categoryId.id)
 
    const book = await bookModel.create({
       BookName,
@@ -108,6 +107,7 @@ exports.createBook = catchAsync(async (req, res) => {
       Remaining_Quantity: TotalQuantity,
       Price,
       Image:uploadResult.secure_url,
+      bookPath:uploadBook.secure_url,
       Availability:"Available",
       Description
       

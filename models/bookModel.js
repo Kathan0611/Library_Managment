@@ -52,6 +52,10 @@ const BookModel = sequelize.define('BookModel', {
         type: DataTypes.STRING,
         allowNull: true 
     },
+    BookPdf:{
+      type:DataTypes.STRING,
+      allowNull:true
+    },
     Publisher: {
         type: DataTypes.STRING,
         allowNull:true
@@ -60,7 +64,6 @@ const BookModel = sequelize.define('BookModel', {
         type:DataTypes.ENUM,
         allowNull:true,
         values:['Available','Not Available'],
-        
     },
     isdeleted:{
         type:DataTypes.STRING,

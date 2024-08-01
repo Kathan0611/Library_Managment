@@ -12,12 +12,22 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = function (req, file, cb) {
-       console.log(file.originalname)
-  if (file.mimetype === 'image/jpg' || file.mimetype == 'image/png' || file.mimetype == 'image/jpeg' || file.mimetype == 'application/pdf' || file.mimetype == 'video/mp4') {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPEG, JPG, and PNG image files are allowed!'), false);
-  }
+       if(file.fieldname==='Image'){
+         if (file.mimetype === 'image/jpg' || file.mimetype == 'image/png' || file.mimetype == 'image/jpeg' ) {
+           cb(null, true);
+         } else {
+           cb(new Error('Only JPEG, JPG, and PNG image files are allowed!'), false);
+         }
+       }
+        else if(file.fieldname==='BookPdf'){
+        if (file.mimetype === 'application/pdf') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only PDF files are allowed for BookPdf!'), false);
+        }
+      } else {
+        cb(new Error('Invalid field name'), false);
+      }
 }
 const upload = multer({ storage: storage,fileFilter: fileFilter })
 

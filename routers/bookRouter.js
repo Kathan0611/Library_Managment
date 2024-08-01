@@ -7,7 +7,7 @@ const validate=require('./../middleware/validationMiddleware');
 const authMiddleware=require('./../middleware/authMiddleware');
 const {checkRole}= require('./../middleware/checkRoleMiddleware');
 
-router.post('/createBook',validate(validateSchema.AddBookSchema),upload.single('Image'),bookController.createBook)
+router.post('/createBook',upload.fields([{name:'Image', maxCount:1},{name:'BookPdf',maxCount:1}]),bookController.createBook)
 router.get('/getAll',authMiddleware,checkRole(['admin','user']),bookController.getAll);
 router.get('/getOne/:id',authMiddleware,checkRole(['admin','user']),bookController.getOne);
 router.put('/updateBook/:id',authMiddleware,checkRole('admin'),bookController.updateBook);        
