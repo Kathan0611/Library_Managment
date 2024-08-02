@@ -107,9 +107,9 @@ exports.createBook = catchAsync(async (req, res) => {
       Remaining_Quantity: TotalQuantity,
       Price,
       Image:uploadResult.secure_url,
-      bookPath:uploadBook.secure_url,
+      BookPdf:uploadBook.secure_url,
       Availability:"Available",
-      Description
+      Description           
       
    })
 

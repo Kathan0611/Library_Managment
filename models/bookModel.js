@@ -80,6 +80,6 @@ CategoryModel.hasMany(BookModel,{foreignKey:'Category',as:"book"})
 
 module.exports = BookModel;           
 
-BookModel.sync({alter:true}).then(() => {
-    console.log(`Book table is created `)
-}).catch((err) => console.log('unable to create book table' + err.message))
+// BookModel.sync({alter:true}).then(() => {
+//     console.log(`Book table is created `)
+// }).catch((err) => console.log('unable to create book table' + err.message))
