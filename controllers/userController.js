@@ -9,6 +9,7 @@ const moment = require('moment-timezone');
 const fs=require('fs');
 const cloudinary = require('cloudinary').v2 
 const path=require('path');
+const { throwDeprecation } = require('process');
 
 
 cloudinary.config({
@@ -185,20 +186,29 @@ exports.singleUser = catchAsync(async (req, res) => {
 exports.updateUser = catchAsync(async (req, res) => {
     
     const userId=req.user;
-    console.log(userId,"jkk") 
+    console.log(userId,"jkk") ;
+
     const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
      console.log(req.body,"kllllllll")
-     console.log(req.file,"deep")
-    
-        const filePath = path.resolve(__dirname , '../uploads/'+ req.file.filename);
-         console.log(filePath)
-        const data= await cloudinary.uploader.upload(filePath, {
-            folder: 'library', // Optional - specify a folder in Cloudinary
-            resource_type: 'auto' // Specify the type of resource (image, video, raw)
-          });
-         
-          console.log(data)
+     console.log(req?.file,"deep")
 
+       const filePath = path.resolve(__dirname , '../uploads/'+ req?.file?.filename);
+
+        if(!filePath){
+             return res.status(404).json({
+                error:true,
+                statusCode:404,
+                message:'File not found'
+             })
+        }
+
+       const data= await cloudinary.uploader.upload(filePath, {
+           folder: 'library', // Optional - specify a folder in Cloudinary
+           resource_type: 'auto' // Specify the type of resource (image, video, raw)
+         });
+        
+   
+         console.log(data,"Hellow!")
   
     const existUser= await userModel.findOne({where:{id:userId}});
     console.log(existUser,"existUser") 
@@ -235,7 +245,7 @@ exports.updateUser = catchAsync(async (req, res) => {
         }
         
         const updateuser = await userModel.update(updateObj, { where: { id: userId } });
-
+        
         if (!updateuser) {
             return res.status(400).json({
                 error: true,
