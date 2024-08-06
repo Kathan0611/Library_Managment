@@ -188,10 +188,18 @@ exports.updateUser = catchAsync(async (req, res) => {
     console.log(userId,"jkk") 
     const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
      console.log(req.body,"kllllllll")
-     console.log(req.file,"deep")
+     console.log(req?.file,"deep")
     
-        const filePath = path.resolve(__dirname , '../uploads/'+ req.file.filename);
+        const filePath = path.resolve(__dirname , '../uploads/'+ req?.file?.filename);
          console.log(filePath)
+        if(!filePath){
+            return res.status(404).json({
+                error:true,
+                statusCode:404,
+                message:"filePath is defined"
+            })
+                
+        }
         const data= await cloudinary.uploader.upload(filePath, {
             folder: 'library', // Optional - specify a folder in Cloudinary
             resource_type: 'auto' // Specify the type of resource (image, video, raw)
