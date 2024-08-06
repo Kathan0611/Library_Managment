@@ -36,10 +36,6 @@ const fileFilter = function (req, file, cb) {
             }
         
       }
-      else{
-        cb(null,'Invalid field name!');
-        
-      }
 }
 const upload = multer({ storage: storage,fileFilter: fileFilter })
 
