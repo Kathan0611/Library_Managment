@@ -191,7 +191,6 @@ exports.updateUser = catchAsync(async (req, res) => {
     const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
      console.log(req.body,"kllllllll")
      console.log(req?.file,"deep")
-
         const filePath = path.resolve(__dirname , '../uploads/'+ req?.file?.filename);
          console.log(filePath)
         if(!filePath){
