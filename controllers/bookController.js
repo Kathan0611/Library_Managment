@@ -933,3 +933,6 @@ exports.extendDay=catchAsync(async(req,res)=>{
        }
 
 })
+
+// hook allow in function componets to access the state.
+//virtual dom  which lightwight of dom easier  manuplation on that

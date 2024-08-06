@@ -8,7 +8,7 @@ module.exports = function (schema) {
   return async function (req, res, next) {
     try {
 
-      
+      // console.log(req.body)
       const { error, value } = await schema.validate(req.body);
       console.log(error,value ,"kkkkkkkkkkkkkk")
       if (error) {
@@ -29,7 +29,7 @@ module.exports = function (schema) {
      return res.status(500).json({
         success: false,
         data: null,
-        message: 'Internal Server Error',
+        message: err.message,
       });
     }
   };
