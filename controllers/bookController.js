@@ -38,7 +38,11 @@ cloudinary.config({
 exports.createBook = catchAsync(async (req, res) => {
    
    const { BookName, Category, ISBN, Author, TotalQuantity, Price, Description} = req.body;
-   // const uploadedFiles = [];
+
+   let ImagefilePath
+   let bookfilePath;
+   let uploadResult;
+   let uploadBook;
    const { Image, BookPdf } = req.files;
    console.log(req.files)
    const imagePath = Image ? Image[0].filename : null;
@@ -55,24 +59,30 @@ exports.createBook = catchAsync(async (req, res) => {
    //   const decoded= Buffer.from(Image,"base64");   
    //   console.log(decoded)
 
-   
-   const ImagefilePath = path.resolve(__dirname, '../uploads/' + imagePath);
-   const bookfilePath=path.resolve(__dirname,'../uploads/'+ bookPdfPath);
-   // console.log(filePath,"kathan")
-   // if (!filePath) {
-   //    return null;
-   // }
+   if(imagePath){
+       ImagefilePath = path.resolve(__dirname, '../uploads/' + imagePath);
+       uploadResult = await cloudinary.uploader.upload(ImagefilePath , {
+          folder: 'Book', 
+          resource_type: 'auto',
+       })
 
-   // fs.writeFileSync(filePath, decoded);
-   
-      const uploadResult = await cloudinary.uploader.upload(ImagefilePath , {
-         folder: 'Book', 
-         resource_type: 'auto',
-      })
-      const  uploadBook= await cloudinary.uploader.upload(bookfilePath,{
+   }
+   if(bookPdfPath){
+      bookfilePath=path.resolve(__dirname,'../uploads/'+ bookPdfPath);
+      uploadBook= await cloudinary.uploader.upload(bookfilePath,{
          folder:"Bookpdfs",
           resource_type:"auto"
       })
+   }
+   // console.log(filePath,"kathan")
+   //   if(!ImagefilePath) {
+   //       return null;
+   //    }
+   //    if(!bookPdfPath){
+   //       return null
+   //    }
+   // // fs.writeFileSync(filePath, decoded);
+   
       console.log(uploadBook)
    
 
@@ -106,11 +116,10 @@ exports.createBook = catchAsync(async (req, res) => {
       TotalQuantity,
       Remaining_Quantity: TotalQuantity,
       Price,
-      Image:uploadResult.secure_url,
-      BookPdf:uploadBook.secure_url,
+      Image:uploadResult? uploadResult.secure_url:null,
+      BookPdf:uploadBook? uploadBook.secure_url:null,
       Availability:"Available",
       Description           
-      
    })
 
    console.log(book, "KLKLKL")

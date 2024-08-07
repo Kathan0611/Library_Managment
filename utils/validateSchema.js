@@ -27,7 +27,6 @@ const newpassword= Joi.object({
 })
 
 const forgotpassword =Joi.object({
-
     email:Joi.string().trim().required().trim()
 })
 
