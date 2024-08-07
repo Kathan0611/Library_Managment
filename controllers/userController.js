@@ -202,10 +202,8 @@ exports.updateUser = catchAsync(async (req, res) => {
                 folder: 'library', // Optional - specify a folder in Cloudinary
                 resource_type: 'auto' // Specify the type of resource (image, video, raw)
               });
-             
               console.log(data)
         }
-        else{
         
     const existUser= await userModel.findOne({where:{id:userId}});
     console.log(existUser,"existUser") 
@@ -236,11 +234,11 @@ exports.updateUser = catchAsync(async (req, res) => {
             jobTitle,
             birthofDate,
             country,
-            BannerImage:data?.secure_url
+            BannerImage:data ? data.secure_url :null
         }
         console.log(updateObj,"klll")
         const updateuser = await userModel.update(updateObj, { where: { id: userId } });
-        
+        console.log(updateuser)
         if (!updateuser) {
             return res.status(400).json({
                 error: true,
@@ -249,6 +247,7 @@ exports.updateUser = catchAsync(async (req, res) => {
             })
         }
         else {
+            console.log(updateuser)
             return res.status(200).json({
                 error: false,
                 statusCode: 200,
@@ -259,7 +258,7 @@ exports.updateUser = catchAsync(async (req, res) => {
 
         // console.log(data,"youtube");
     }
-}
+
 })
 
 //delete  for user
