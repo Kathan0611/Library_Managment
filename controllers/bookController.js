@@ -656,7 +656,7 @@ exports.count = catchAsync(async (req, res) => {
          include: [{
             model: bookModel,
             as: 'book', // Specify the alias here
-            attributes: ['BookName','Image'] // Include attributes from BookModel
+            attributes: ['BookName','Image','BookPdf'] // Include attributes from BookModel
          },{
             model:userModel,
             as:'user',

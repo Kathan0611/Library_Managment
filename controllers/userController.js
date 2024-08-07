@@ -186,29 +186,27 @@ exports.singleUser = catchAsync(async (req, res) => {
 exports.updateUser = catchAsync(async (req, res) => {
     
     const userId=req.user;
-    console.log(userId,"jkk") ;
+    console.log(userId,"jkk");
+    let data;
 
     const { name, mobilenum ,jobTitle,birthofDate,country} = req.body
      console.log(req.body,"kllllllll")
      console.log(req?.file,"deep")
-        const filePath = path.resolve(__dirname , '../uploads/'+ req?.file?.filename);
+ 
+     
+     if(req.file){
+         const filePath = path.resolve(__dirname , '../uploads/'+ req?.file?.filename);
          console.log(filePath)
-        if(!filePath){
-            return res.status(404).json({
-                error:true,
-                statusCode:404,
-                message:"filePath is defined"
-            })
-                
+         console.log('filePath is not defined');
+              data= await cloudinary.uploader.upload(filePath, {
+                folder: 'library', // Optional - specify a folder in Cloudinary
+                resource_type: 'auto' // Specify the type of resource (image, video, raw)
+              });
+             
+              console.log(data)
         }
-        const data= await cloudinary.uploader.upload(filePath, {
-            folder: 'library', // Optional - specify a folder in Cloudinary
-            resource_type: 'auto' // Specify the type of resource (image, video, raw)
-          });
-         
-          console.log(data)
-
-  
+        else{
+        
     const existUser= await userModel.findOne({where:{id:userId}});
     console.log(existUser,"existUser") 
 
@@ -232,8 +230,6 @@ exports.updateUser = catchAsync(async (req, res) => {
         //    folder:'pdfs',
         //     resource_type:'auto' 
         // })
-
-        // console.log(data,"youtube");
         const updateObj = {
             name, 
             mobilenum,
@@ -242,7 +238,7 @@ exports.updateUser = catchAsync(async (req, res) => {
             country,
             BannerImage:data.secure_url
         }
-        
+        console.log(updateObj,"klll")
         const updateuser = await userModel.update(updateObj, { where: { id: userId } });
         
         if (!updateuser) {
@@ -260,7 +256,10 @@ exports.updateUser = catchAsync(async (req, res) => {
                 data:updateuser
             })
         }
+
+        // console.log(data,"youtube");
     }
+}
 })
 
 //delete  for user
@@ -514,3 +513,4 @@ exports.refresh=catchAsync(async (req,res,next)=>{
            }
      }
 })
+

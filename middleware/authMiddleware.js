@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const validateRequest = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];  
-    // console.log(req.headers.authorization,"lkkklklklkl");
+    console.log(req.headers.authorization,"lkkklklklkl");
 
     if (!token) {
       return res.status(401).json({ message: "token is not found" });
@@ -15,8 +15,8 @@ const validateRequest = async (req, res, next) => {
     if (!decoded.id) {
       return res.status(401).json({ message: "User is not found" });
     }
-    req.user = decoded.id; 
-
+    req.user = decoded.id;
+    
     next();
   } catch (err) {
     return res.status(401).json({ message: "token is not valid" });
