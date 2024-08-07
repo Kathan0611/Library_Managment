@@ -236,7 +236,7 @@ exports.updateUser = catchAsync(async (req, res) => {
             jobTitle,
             birthofDate,
             country,
-            BannerImage:data.secure_url
+            BannerImage:data?.secure_url
         }
         console.log(updateObj,"klll")
         const updateuser = await userModel.update(updateObj, { where: { id: userId } });
