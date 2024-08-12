@@ -72,6 +72,6 @@ module.exports = userModel;
 
 
 // console.log(moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss'))
-// userModel.sync().then(() => {
-//     console.log(`user table is created `)
-// }).catch((err) => console.log('unable to create user table' + err))
+sequelize.sync().then(() => {
+    console.log(`user table is created `)
+}).catch((err) => console.log('unable to create user table' + err))
