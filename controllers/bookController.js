@@ -61,7 +61,7 @@ exports.createBook = catchAsync(async (req, res) => {
 
    if(imagePath){
        ImagefilePath = path.resolve(__dirname, '../uploads/' + imagePath);
-       const uploadResult = await cloudinary.uploader.upload(ImagefilePath , {
+        uploadResult = await cloudinary.uploader.upload(ImagefilePath , {
           folder: 'Book', 
           resource_type: 'auto',
        })
