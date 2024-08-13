@@ -41,7 +41,7 @@ exports.createBook = catchAsync(async (req, res) => {
 
    let ImagefilePath
    let bookfilePath;
-   // let uploadResult;
+   let uploadResult;
    let uploadBook;
    const { Image, BookPdf } = req.files;
    console.log(req.files)
