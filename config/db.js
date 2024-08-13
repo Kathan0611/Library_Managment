@@ -10,7 +10,7 @@ const {Sequelize}= require('sequelize');
 //     dialect:'mysql'
 // })
 
-const sequelize= new Sequelize('mysql://root:sMKFNPPjgeHBYMInCcaLeQqNtOrVfcHT@viaduct.proxy.rlwy.net:56116/railway')
+const sequelize= new Sequelize('mysql://root:NpPoUxzGQbSHyUoBrhjONYzgyctQOULG@roundhouse.proxy.rlwy.net:53138/railway')
 
 
 sequelize.authenticate().then(()=>{
