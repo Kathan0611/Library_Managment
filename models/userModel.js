@@ -22,7 +22,7 @@ const userModel = sequelize.define('userModel', {
         allowNull: false
     },
     mobilenum: {
-        type: DataTypes.INTEGER
+        type: DataTypes.STRING
     },
     roles: {
         type: DataTypes.STRING,
